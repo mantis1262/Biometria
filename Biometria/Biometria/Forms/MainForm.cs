@@ -1,5 +1,5 @@
 ﻿using ImageSoundProcessing.Factories;
-using ImageSoundProcessing.Helpers;
+using Biometria.Helpers;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -38,6 +38,8 @@ namespace Biometria
             {
                 _imagePath = imagePath;
                 _originalBitmap = BitmapFactory.CreateBitmap(imagePath);
+                _originalBitmap = Effect.GrayMode(_originalBitmap);
+                _originalBitmap = Effect.Binarization(_originalBitmap,128);
                 loadedImage.Image = _originalBitmap;
             }
         }

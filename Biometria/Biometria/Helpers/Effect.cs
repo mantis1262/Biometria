@@ -32,5 +32,30 @@ namespace Biometria.Helpers
             processedBitmapLock.UnlockBits();
             return processedBmp;
         }
+
+        public static Bitmap Binarization(Bitmap original, int granica)
+        {
+            Bitmap processedBmp = new Bitmap(original.Width, original.Height);
+            LockBitmap originalBitmapLock = new LockBitmap(original);
+            LockBitmap processedBitmapLock = new LockBitmap(processedBmp);
+            originalBitmapLock.LockBits(ImageLockMode.ReadOnly);
+            processedBitmapLock.LockBits(ImageLockMode.WriteOnly);
+
+            for (int i = 0; i < originalBitmapLock.Width; i++)
+            {
+                for (int j = 0; j < originalBitmapLock.Height; j++)
+                {
+                    if(originalBitmapLock.GetPixel(i,j).R > granica)
+                        processedBitmapLock.SetPixel(i, j, Color.FromArgb(255, 255, 255, 255));
+                    else
+                        processedBitmapLock.SetPixel(i, j, Color.FromArgb(255, 0, 0, 0));
+                }
+            }
+
+            originalBitmapLock.UnlockBits();
+            processedBitmapLock.UnlockBits();
+            return processedBmp;
+        }
+
     }
 }
