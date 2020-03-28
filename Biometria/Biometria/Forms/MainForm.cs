@@ -40,6 +40,7 @@ namespace Biometria
                 _originalBitmap = BitmapFactory.CreateBitmap(imagePath);
                 _originalBitmap = Effect.GrayMode(_originalBitmap);
                 _originalBitmap = Effect.Binarization(_originalBitmap,128);
+                _originalBitmap = Effect.Skeletonization(_originalBitmap);
                 loadedImage.Image = _originalBitmap;
             }
         }
