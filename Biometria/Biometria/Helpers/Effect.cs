@@ -305,5 +305,97 @@ namespace Biometria.Helpers
 
             return processedBmp;
         }
+
+        public static Bitmap ClipBoundaries(Bitmap original, int backgroundColor)
+        {
+            LockBitmap originalBitmapLock = new LockBitmap(original);
+            originalBitmapLock.LockBits(ImageLockMode.ReadOnly);
+
+            int minPosX = originalBitmapLock.Width, minPosY = originalBitmapLock.Height, maxPosX = 0, maxPosY = 0;
+
+            for (int i = 0; i < originalBitmapLock.Width; i++)
+            {
+                for (int j = 0; j < originalBitmapLock.Height; j++)
+                {
+                    if (originalBitmapLock.GetPixel(i, j).R < backgroundColor)
+                    {
+                        if (i < minPosX) minPosX = i;
+                        if (j < minPosY) minPosY = j;
+                        if (i > maxPosX) maxPosX = i;
+                        if (j > maxPosY) maxPosY = j;
+                    }
+                }
+            }
+
+            originalBitmapLock.UnlockBits();
+
+            int newImageWitdh = maxPosX - minPosX;
+            int newImageHeigth = maxPosY - minPosY;
+            Bitmap clippedBitmap = new Bitmap(newImageWitdh, newImageHeigth);
+            Rectangle originalClipRegion = new Rectangle(minPosX, minPosY, newImageWitdh, newImageHeigth);
+            Rectangle destRegion = new Rectangle(0, 0, newImageWitdh, newImageHeigth);
+            CopyRegionIntoImage(original, originalClipRegion, ref clippedBitmap, destRegion);
+
+
+
+            return clippedBitmap;
+        }
+
+        public static void CopyRegionIntoImage(Bitmap srcBitmap, Rectangle srcRegion, ref Bitmap destBitmap, Rectangle destRegion)
+        {
+            using (Graphics grD = Graphics.FromImage(destBitmap))
+            {
+                grD.DrawImage(srcBitmap, destRegion, srcRegion, GraphicsUnit.Pixel);
+            }
+        }
+
+        public static Bitmap MedianFilter(Bitmap original, int MaskSize)
+        {
+            Bitmap processedBmp = new Bitmap(original.Width, original.Height);
+            LockBitmap originalBitmapLock = new LockBitmap(original);
+            LockBitmap processedBitmapLock = new LockBitmap(processedBmp);
+            originalBitmapLock.LockBits(ImageLockMode.ReadOnly);
+            processedBitmapLock.LockBits(ImageLockMode.WriteOnly);
+
+            int midIndex;
+            if (MaskSize % 2 == 0) midIndex = (MaskSize + 1) / 2;
+            else midIndex = MaskSize / 2;
+            for (int i = 0; i < original.Width; i++)
+                for (int j = 0; j < original.Height; j++)
+                {
+                    int x, y;
+                    List<int> R = new List<int>();
+                    List<int> G = new List<int>();
+                    List<int> B = new List<int>();
+                    for (int n = -midIndex; n <= midIndex; n++)
+                    {
+                        x = i + n;
+                        if (x < 0) x = 0;
+                        if (x >= originalBitmapLock.Width) x = originalBitmapLock.Width - 1;
+                        for (int m = -midIndex; m <= midIndex; m++)
+                        {
+                            y = j + m;
+                            if (y < 0)
+                                y = 0;
+                            if (y >= originalBitmapLock.Height)
+                                y = originalBitmapLock.Height - 1;
+                            R.Add(originalBitmapLock.GetPixel(x, y).R);
+                            G.Add(originalBitmapLock.GetPixel(x, y).G);
+                            B.Add(originalBitmapLock.GetPixel(x, y).B);
+                        }
+                    }
+                    int midleListIndex = (MaskSize * MaskSize) / 2;
+                    R.Sort();
+                    G.Sort();
+                    B.Sort();
+                    processedBitmapLock.SetPixel(i, j, Color.FromArgb(originalBitmapLock.GetPixel(i, j).A, R[midleListIndex], G[midleListIndex], B[midleListIndex]));
+                }
+
+            originalBitmapLock.UnlockBits();
+            processedBitmapLock.UnlockBits();
+            return processedBmp;
+        }
+
+
     }
 }
