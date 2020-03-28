@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Biometria.Models;
 
 namespace Biometria
 {
@@ -41,7 +42,12 @@ namespace Biometria
                 _originalBitmap = Effect.GrayMode(_originalBitmap);
                 _originalBitmap = Effect.Binarization(_originalBitmap,128);
                 _originalBitmap = Effect.Skeletonization(_originalBitmap);
+                List<Minutiae> minutiaes = Effect.ExtractMinutiaes(_originalBitmap);
+                // Termination - red (crossing number = 1)
+                // Bifurcation - blue (crossing number = 3)
+                _originalBitmap = Effect.MarkMinutiaes(_originalBitmap, minutiaes);
                 loadedImage.Image = _originalBitmap;
+                MessageBox.Show(minutiaes.Count.ToString(), "Liczba minucji", MessageBoxButtons.OK);
             }
         }
 
