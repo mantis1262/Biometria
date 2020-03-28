@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Biometria.Models;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -221,6 +222,88 @@ namespace Biometria.Helpers
             processedBitmapLock.UnlockBits();
             return processedBmp;
         }
+        
+        public static List<Minutiae> ExtractMinutiaes(Bitmap original)
+        {
+            List<Minutiae> minutiaes = new List<Minutiae>();
+            LockBitmap originalBitmapLock = new LockBitmap(original);
+            originalBitmapLock.LockBits(ImageLockMode.ReadOnly);
+            int blackColorLimit = 10;
 
+            for (int i = 1; i < originalBitmapLock.Width - 1; i++)
+            {
+                for (int j = 1; j < originalBitmapLock.Height - 1; j++)
+                {
+                    int pixelValue = originalBitmapLock.GetPixel(i, j).R;
+                    if (pixelValue < blackColorLimit)
+                    {
+                        int[] neighbours = {
+                            originalBitmapLock.GetPixel(i - 1, j - 1).R,
+                            originalBitmapLock.GetPixel(i - 1, j).R,
+                            originalBitmapLock.GetPixel(i - 1, j + 1).R,
+                            originalBitmapLock.GetPixel(i, j + 1).R,
+                            originalBitmapLock.GetPixel(i + 1, j + 1).R,
+                            originalBitmapLock.GetPixel(i + 1, j).R,
+                            originalBitmapLock.GetPixel(i + 1, j - 1).R,
+                            originalBitmapLock.GetPixel(i, j - 1).R,
+                            originalBitmapLock.GetPixel(i - 1, j - 1).R,
+                        };
+
+                        int crossingNumber = 0;
+                        for (int k = 0; k < neighbours.Length; k++)
+                        {
+                            if (k < (neighbours.Length - 1))
+                            {
+                                int firstPixel = neighbours[k] < blackColorLimit ? 1 : 0;
+                                int secondPixel = neighbours[k + 1] < blackColorLimit ? 1 : 0;
+                                crossingNumber += Math.Abs(firstPixel - secondPixel);
+                            }
+                            else
+                            {
+                                int firstPixel = neighbours[k] < blackColorLimit ? 1 : 0;
+                                int secondPixel = neighbours[0] < blackColorLimit ? 1 : 0;
+                                crossingNumber += Math.Abs(firstPixel - secondPixel);
+                            }
+                        }
+
+                        crossingNumber /= 2;
+
+                        if (crossingNumber == 1 || crossingNumber == 3)
+                        {
+                            Minutiae minutiae = new Minutiae(i, j, crossingNumber);
+                            minutiaes.Add(minutiae);
+                        }
+                    }
+                }
+            }
+
+            originalBitmapLock.UnlockBits();
+            return minutiaes;
+        }
+
+        public static Bitmap MarkMinutiaes(Bitmap original, List<Minutiae> minutiaes)
+        {
+            Bitmap processedBmp = new Bitmap(original);
+            float circleWidth = 3;
+
+            // Termination - red (crossing number = 1)
+            // Bifurcation - blue (crossing number = 3)
+            foreach (Minutiae minutiae in minutiaes)
+            {
+                using (Graphics grf = Graphics.FromImage(processedBmp))
+                {
+                    Color color = minutiae.CrossingNumber == 1 ? Color.Red : 
+                        minutiae.CrossingNumber == 3 ? Color.Blue : Color.Yellow;
+                    using (Pen penRed = new Pen(color, 1.2f))
+                    {
+                        int posX = minutiae.X - (int)circleWidth;
+                        int posY = minutiae.Y - (int)circleWidth;
+                        grf.DrawEllipse(penRed, new RectangleF(posX, posY, circleWidth, circleWidth));
+                    }
+                }
+            }
+
+            return processedBmp;
+        }
     }
 }
