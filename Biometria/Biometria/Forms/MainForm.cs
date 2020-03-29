@@ -45,12 +45,12 @@ namespace Biometria
                 _originalBitmap = Effect.ClipBoundaries(_originalBitmap, 255, 10);
                 _originalBitmap = Effect.Skeletonization(_originalBitmap);
                 _originalBitmap = Effect.ClipBoundaries(_originalBitmap, 255, 10);
-                List<Minutiae> minutiaes = Effect.ExtractMinutiaes(_originalBitmap);
+                MinutiaesResult minutiaesResult = Effect.ExtractMinutiaes(_originalBitmap, 40, 300);
                 // Termination - red (crossing number = 1)
                 // Bifurcation - blue (crossing number = 3)
-               // _originalBitmap = Effect.MarkMinutiaes(_originalBitmap, minutiaes);
+                _originalBitmap = Effect.MarkMinutiaes(_originalBitmap, minutiaesResult);
                 loadedImage.Image = _originalBitmap;
-                //MessageBox.Show(minutiaes.Count.ToString(), "Liczba minucji", MessageBoxButtons.OK);
+                MessageBox.Show(minutiaesResult.Minutiaes.Count.ToString(), "Liczba minucji", MessageBoxButtons.OK);
             }
         }
 
