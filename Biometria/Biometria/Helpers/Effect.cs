@@ -306,7 +306,7 @@ namespace Biometria.Helpers
             return processedBmp;
         }
 
-        public static Bitmap ClipBoundaries(Bitmap original, int backgroundColor)
+        public static Bitmap ClipBoundaries(Bitmap original, int backgroundColor, int clippingAdditionalSpace)
         {
             LockBitmap originalBitmapLock = new LockBitmap(original);
             originalBitmapLock.LockBits(ImageLockMode.ReadOnly);
@@ -329,16 +329,25 @@ namespace Biometria.Helpers
 
             originalBitmapLock.UnlockBits();
 
+            minPosX -= clippingAdditionalSpace;
+            minPosY -= clippingAdditionalSpace;
+            maxPosX += clippingAdditionalSpace;
+            maxPosY += clippingAdditionalSpace;
+
+            if (minPosX < 0) minPosX = 0;
+            if (minPosY < 0) minPosY = 0;
+            if (maxPosX > (original.Width - 1)) maxPosX = original.Width - 1;
+            if (maxPosY > (original.Height - 1)) maxPosY = original.Height - 1;
+
             int newImageWitdh = maxPosX - minPosX;
-            int newImageHeigth = maxPosY - minPosY;
+            int newImageHeigth = maxPosY - minPosY ;
             Bitmap clippedBitmap = new Bitmap(newImageWitdh, newImageHeigth);
             Rectangle originalClipRegion = new Rectangle(minPosX, minPosY, newImageWitdh, newImageHeigth);
             Rectangle destRegion = new Rectangle(0, 0, newImageWitdh, newImageHeigth);
             CopyRegionIntoImage(original, originalClipRegion, ref clippedBitmap, destRegion);
 
-
-
             return clippedBitmap;
+
         }
 
         public static void CopyRegionIntoImage(Bitmap srcBitmap, Rectangle srcRegion, ref Bitmap destBitmap, Rectangle destRegion)

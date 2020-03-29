@@ -40,11 +40,11 @@ namespace Biometria
                 _imagePath = imagePath;
                 _originalBitmap = BitmapFactory.CreateBitmap(imagePath);
                 _originalBitmap = Effect.GrayMode(_originalBitmap);
-                _originalBitmap = Effect.ClipBoundaries(_originalBitmap, 255);
                 //_originalBitmap = Effect.MedianFilter(_originalBitmap, 4);
                 _originalBitmap = Effect.Binarization(_originalBitmap,128);
-                //_originalBitmap = Effect.ClipBoundaries(_originalBitmap, 255);
+                _originalBitmap = Effect.ClipBoundaries(_originalBitmap, 255, 10);
                 _originalBitmap = Effect.Skeletonization(_originalBitmap);
+                _originalBitmap = Effect.ClipBoundaries(_originalBitmap, 255, 10);
                 List<Minutiae> minutiaes = Effect.ExtractMinutiaes(_originalBitmap);
                 // Termination - red (crossing number = 1)
                 // Bifurcation - blue (crossing number = 3)
