@@ -48,9 +48,9 @@ namespace Biometria
                 List<Minutiae> minutiaes = Effect.ExtractMinutiaes(_originalBitmap);
                 // Termination - red (crossing number = 1)
                 // Bifurcation - blue (crossing number = 3)
-               // _originalBitmap = Effect.MarkMinutiaes(_originalBitmap, minutiaes);
+                _originalBitmap = Effect.MarkMinutiaes(_originalBitmap, minutiaes);
                 loadedImage.Image = _originalBitmap;
-                //MessageBox.Show(minutiaes.Count.ToString(), "Liczba minucji", MessageBoxButtons.OK);
+                MessageBox.Show(minutiaes.Count.ToString(), "Liczba minucji", MessageBoxButtons.OK);
             }
         }
 

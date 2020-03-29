@@ -308,16 +308,17 @@ namespace Biometria.Helpers
 
         public static Bitmap ClipBoundaries(Bitmap original, int backgroundColor, int clippingAdditionalSpace)
         {
-            LockBitmap originalBitmapLock = new LockBitmap(original);
-            originalBitmapLock.LockBits(ImageLockMode.ReadOnly);
+            Bitmap processedBitmap = AddSpaceBoundaries(original, backgroundColor, clippingAdditionalSpace);
+            LockBitmap processedBitmapLock = new LockBitmap(processedBitmap);
+            processedBitmapLock.LockBits(ImageLockMode.ReadOnly);
 
-            int minPosX = originalBitmapLock.Width, minPosY = originalBitmapLock.Height, maxPosX = 0, maxPosY = 0;
+            int minPosX = processedBitmapLock.Width, minPosY = processedBitmapLock.Height, maxPosX = 0, maxPosY = 0;
 
-            for (int i = 0; i < originalBitmapLock.Width; i++)
+            for (int i = 0; i < processedBitmapLock.Width; i++)
             {
-                for (int j = 0; j < originalBitmapLock.Height; j++)
+                for (int j = 0; j < processedBitmapLock.Height; j++)
                 {
-                    if (originalBitmapLock.GetPixel(i, j).R < backgroundColor)
+                    if (processedBitmapLock.GetPixel(i, j).R < backgroundColor)
                     {
                         if (i < minPosX) minPosX = i;
                         if (j < minPosY) minPosY = j;
@@ -327,7 +328,7 @@ namespace Biometria.Helpers
                 }
             }
 
-            originalBitmapLock.UnlockBits();
+            processedBitmapLock.UnlockBits();
 
             minPosX -= clippingAdditionalSpace;
             minPosY -= clippingAdditionalSpace;
@@ -336,18 +337,107 @@ namespace Biometria.Helpers
 
             if (minPosX < 0) minPosX = 0;
             if (minPosY < 0) minPosY = 0;
-            if (maxPosX > (original.Width - 1)) maxPosX = original.Width - 1;
-            if (maxPosY > (original.Height - 1)) maxPosY = original.Height - 1;
+            if (maxPosX > (processedBitmap.Width - 1)) maxPosX = processedBitmap.Width - 1;
+            if (maxPosY > (processedBitmap.Height - 1)) maxPosY = processedBitmap.Height - 1;
 
-            int newImageWitdh = maxPosX - minPosX;
-            int newImageHeigth = maxPosY - minPosY ;
-            Bitmap clippedBitmap = new Bitmap(newImageWitdh, newImageHeigth);
-            Rectangle originalClipRegion = new Rectangle(minPosX, minPosY, newImageWitdh, newImageHeigth);
-            Rectangle destRegion = new Rectangle(0, 0, newImageWitdh, newImageHeigth);
-            CopyRegionIntoImage(original, originalClipRegion, ref clippedBitmap, destRegion);
+            int newImageWidth = maxPosX - minPosX;
+            int newImageHeight = maxPosY - minPosY;
+            Bitmap clippedBitmap = new Bitmap(newImageWidth, newImageHeight);
+            Rectangle processedClipRegion = new Rectangle(minPosX, minPosY, newImageWidth, newImageHeight);
+            Rectangle destRegion = new Rectangle(0, 0, newImageWidth, newImageHeight);
+            CopyRegionIntoImage(processedBitmap, processedClipRegion, ref clippedBitmap, destRegion);
 
             return clippedBitmap;
+        }
 
+        public static Bitmap AddSpaceBoundaries(Bitmap original, int backgroundColor, int spaceSize)
+        {
+            Bitmap processedBmp = null;
+
+            LockBitmap originalBitmapLock = new LockBitmap(original);
+            originalBitmapLock.LockBits(ImageLockMode.ReadOnly);
+
+            //scan top border
+            bool topNeedsSpace = false;
+            for (int i = 0; i < originalBitmapLock.Width; i++)
+            {
+                if (originalBitmapLock.GetPixel(i, 0).R < backgroundColor)
+                    topNeedsSpace = true;
+            }
+
+            //scan bottom border
+            bool bottomNeedsSpace = false;
+            for (int i = 0; i < originalBitmapLock.Width; i++)
+            {
+                if (originalBitmapLock.GetPixel(i, originalBitmapLock.Height - 1).R < backgroundColor)
+                    bottomNeedsSpace = true;
+            }
+
+            //scan left border
+            bool leftNeedsSpace = false;
+            for (int i = 0; i < originalBitmapLock.Height; i++)
+            {
+                if (originalBitmapLock.GetPixel(0, i).R < backgroundColor)
+                    leftNeedsSpace = true;
+            }
+
+            //scan right border
+            bool rightNeedsSpace = false;
+            for (int i = 0; i < originalBitmapLock.Height; i++)
+            {
+                if (originalBitmapLock.GetPixel(originalBitmapLock.Width - 1, i).R < backgroundColor)
+                    rightNeedsSpace = true;
+            }
+
+            originalBitmapLock.UnlockBits();
+
+            int newPosX = 0, newPosY = 0;
+            int newImageWidth = originalBitmapLock.Width;
+            int newImageHeigth = originalBitmapLock.Height;
+
+            if (topNeedsSpace | bottomNeedsSpace | leftNeedsSpace | rightNeedsSpace)
+            {
+                if (topNeedsSpace)
+                {
+                    newPosY += spaceSize;
+                    newImageHeigth += spaceSize;
+                }
+
+                if (bottomNeedsSpace)
+                {
+                    newImageHeigth += spaceSize;
+                }
+
+                if (leftNeedsSpace)
+                {
+                    newPosX += spaceSize;
+                    newImageWidth += spaceSize;
+                }
+
+                if (rightNeedsSpace)
+                {
+                    newImageWidth += spaceSize;
+                }
+
+                processedBmp = new Bitmap(newImageWidth, newImageHeigth);
+
+                using (Graphics grf = Graphics.FromImage(processedBmp))
+                {
+                    Color color = Color.White;
+                    using (SolidBrush brush = new SolidBrush(Color.White))
+                    {
+                        grf.FillRectangle(brush, new Rectangle(0, 0, processedBmp.Width, processedBmp.Height));
+                    }
+                }
+
+                Rectangle originalClipRegion = new Rectangle(0, 0, original.Width, original.Height);
+                Rectangle destRegion = new Rectangle(newPosX, newPosY, newImageWidth, newImageHeigth);
+                CopyRegionIntoImage(original, originalClipRegion, ref processedBmp, destRegion);
+            }
+            else
+                processedBmp = original;
+
+            return processedBmp;
         }
 
         public static void CopyRegionIntoImage(Bitmap srcBitmap, Rectangle srcRegion, ref Bitmap destBitmap, Rectangle destRegion)
