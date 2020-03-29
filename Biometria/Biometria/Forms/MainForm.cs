@@ -46,6 +46,7 @@ namespace Biometria
                 _originalBitmap = Effect.Skeletonization(_originalBitmap);
                 _originalBitmap = Effect.ClipBoundaries(_originalBitmap, 255, 10);
                 MinutiaesResult minutiaesResult = Effect.ExtractMinutiaes(_originalBitmap, 40, 300);
+                // Center - purple
                 // Termination - red (crossing number = 1)
                 // Bifurcation - blue (crossing number = 3)
                 _originalBitmap = Effect.MarkMinutiaes(_originalBitmap, minutiaesResult);
