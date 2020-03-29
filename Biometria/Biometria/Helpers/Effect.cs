@@ -223,7 +223,7 @@ namespace Biometria.Helpers
             return processedBmp;
         }
         
-        public static List<Minutiae> ExtractMinutiaes(Bitmap original)
+        public static MinutiaesResult ExtractMinutiaes(Bitmap original, int offsetFromImageBorders, int offsetFromCenter)
         {
             List<Minutiae> minutiaes = new List<Minutiae>();
             LockBitmap originalBitmapLock = new LockBitmap(original);
@@ -278,17 +278,41 @@ namespace Biometria.Helpers
             }
 
             originalBitmapLock.UnlockBits();
-            return minutiaes;
+
+            List<Minutiae> limitedMinutiaes = new List<Minutiae>();
+            int centerPosX = 0, centerPosY = 0;
+
+            foreach (Minutiae minutiae in minutiaes)
+            {
+                centerPosX += minutiae.X;
+                centerPosY += minutiae.Y;
+            }
+
+            centerPosX /= minutiaes.Count;
+            centerPosY /= minutiaes.Count;
+
+            foreach (Minutiae minutiae in minutiaes)
+            {
+                double distance = Math.Sqrt(Math.Pow(minutiae.X, 2) + Math.Pow(minutiae.Y, 2));
+                if (minutiae.X >= offsetFromImageBorders && 
+                    minutiae.X <= (original.Width - offsetFromImageBorders) &&
+                    minutiae.Y >= offsetFromImageBorders &&
+                    minutiae.Y <= (original.Height - offsetFromImageBorders) &&
+                    distance <= offsetFromCenter)
+                    limitedMinutiaes.Add(minutiae);
+            }
+
+            return new MinutiaesResult(centerPosX, centerPosY, limitedMinutiaes);
         }
 
-        public static Bitmap MarkMinutiaes(Bitmap original, List<Minutiae> minutiaes)
+        public static Bitmap MarkMinutiaes(Bitmap original, MinutiaesResult minutiaesResult)
         {
             Bitmap processedBmp = new Bitmap(original);
             float circleWidth = 3;
 
             // Termination - red (crossing number = 1)
             // Bifurcation - blue (crossing number = 3)
-            foreach (Minutiae minutiae in minutiaes)
+            foreach (Minutiae minutiae in minutiaesResult.Minutiaes)
             {
                 using (Graphics grf = Graphics.FromImage(processedBmp))
                 {
@@ -300,6 +324,16 @@ namespace Biometria.Helpers
                         int posY = minutiae.Y - (int)circleWidth;
                         grf.DrawEllipse(penRed, new RectangleF(posX, posY, circleWidth, circleWidth));
                     }
+                }
+            }
+
+            using (Graphics grf = Graphics.FromImage(processedBmp))
+            {
+                using (Pen penRed = new Pen(Color.DarkViolet, 2.2f))
+                {
+                    int posX = minutiaesResult.CenterX - 10;
+                    int posY = minutiaesResult.CenterY - 10;
+                    grf.DrawEllipse(penRed, new RectangleF(posX, posY, 10, 10));
                 }
             }
 
