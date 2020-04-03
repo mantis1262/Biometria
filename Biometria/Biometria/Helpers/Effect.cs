@@ -310,6 +310,7 @@ namespace Biometria.Helpers
             Bitmap processedBmp = new Bitmap(original);
             float circleWidth = 3;
 
+            // Center - purple
             // Termination - red (crossing number = 1)
             // Bifurcation - blue (crossing number = 3)
             foreach (Minutiae minutiae in minutiaesResult.Minutiaes)

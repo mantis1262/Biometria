@@ -39,22 +39,40 @@ namespace Biometria
             {
                 _imagePath = imagePath;
                 _originalBitmap = BitmapFactory.CreateBitmap(imagePath);
-                _originalBitmap = Effect.GrayMode(_originalBitmap);
+                Bitmap grayBitmapImage = Effect.GrayMode(_originalBitmap);
                 //_originalBitmap = Effect.MedianFilter(_originalBitmap, 4);
-                _originalBitmap = Otsu.threshold(_originalBitmap,Otsu.getOtsuThreshold(_originalBitmap));
-                _originalBitmap = Effect.ClipBoundaries(_originalBitmap, 255, 10);
-                _originalBitmap = Effect.Skeletonization(_originalBitmap);
-                _originalBitmap = Effect.ClipBoundaries(_originalBitmap, 255, 10);
-                MinutiaesResult minutiaesResult = Effect.ExtractMinutiaes(_originalBitmap, 40, 300);
+                Bitmap binarizationBitmapImage = Otsu.threshold(grayBitmapImage, Otsu.getOtsuThreshold(grayBitmapImage));
+                binarizationBitmapImage = Effect.ClipBoundaries(binarizationBitmapImage, 255, 10);
+                binarizationImage.Image = binarizationBitmapImage;
+                Bitmap thinningBitmapImage = Effect.Skeletonization(binarizationBitmapImage);
+                thinningBitmapImage = Effect.ClipBoundaries(thinningBitmapImage, 255, 10);
+                thinningImage.Image = thinningBitmapImage;
+                MinutiaesResult minutiaesResult = Effect.ExtractMinutiaes(thinningBitmapImage, 40, 300);
+                // Center - purple
                 // Termination - red (crossing number = 1)
                 // Bifurcation - blue (crossing number = 3)
-                _originalBitmap = Effect.MarkMinutiaes(_originalBitmap, minutiaesResult);
-                loadedImage.Image = _originalBitmap;
+                Bitmap minutiaesBitmapImage = Effect.MarkMinutiaes(thinningBitmapImage, minutiaesResult);
+                minutiaesImage.Image = minutiaesBitmapImage;
                 MessageBox.Show(minutiaesResult.Minutiaes.Count.ToString(), "Liczba minucji", MessageBoxButtons.OK);
             }
         }
 
         private void LoadedImage_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void BinarizationImage_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void ThinningImage_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void MinutiaesImage_Click(object sender, EventArgs e)
         {
 
         }
