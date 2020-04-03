@@ -291,24 +291,80 @@ namespace Biometria.Helpers
             centerPosX /= minutiaes.Count;
             centerPosY /= minutiaes.Count;
 
-            foreach (Minutiae minutiae in minutiaes)
-            {
-                double distance = Math.Sqrt(Math.Pow(minutiae.X, 2) + Math.Pow(minutiae.Y, 2));
-                if (minutiae.X >= offsetFromImageBorders && 
-                    minutiae.X <= (original.Width - offsetFromImageBorders) &&
-                    minutiae.Y >= offsetFromImageBorders &&
-                    minutiae.Y <= (original.Height - offsetFromImageBorders) &&
-                    distance <= offsetFromCenter)
-                    limitedMinutiaes.Add(minutiae);
-            }
+            //foreach (Minutiae minutiae in minutiaes)
+            //{
+            //    double distance = Math.Sqrt(Math.Pow(minutiae.X, 2) + Math.Pow(minutiae.Y, 2));
+            //    if (minutiae.X >= offsetFromImageBorders && 
+            //        minutiae.X <= (original.Width - offsetFromImageBorders) &&
+            //        minutiae.Y >= offsetFromImageBorders &&
+            //        minutiae.Y <= (original.Height - offsetFromImageBorders) &&
+            //        distance <= offsetFromCenter)
+            //        limitedMinutiaes.Add(minutiae);
+            //}
+
+            // remove minutiaes near the edge
+            limitedMinutiaes = RemoveMinutiaesNearBorders(minutiaes, original.Width, original.Height, offsetFromImageBorders);
+
+            // remove false minutiaes
+            //limitedMinutiaes = RemoveFalseMinutiaes(original, limitedMinutiaes);
 
             return new MinutiaesResult(centerPosX, centerPosY, limitedMinutiaes);
+        }
+
+        public static List<Minutiae> RemoveMinutiaesNearBorders(List<Minutiae> minutiaes, int imageWidth, int imageHeight, int offsetFromImageBorders)
+        {
+            List<Minutiae> limitedMinutiaes = new List<Minutiae>();
+            foreach (Minutiae minutiae in minutiaes)
+            {
+                if (minutiae.X >= offsetFromImageBorders &&
+                    minutiae.X <= (imageWidth - offsetFromImageBorders) &&
+                    minutiae.Y >= offsetFromImageBorders &&
+                    minutiae.Y <= (imageHeight - offsetFromImageBorders))
+                    limitedMinutiaes.Add(minutiae);
+            }
+            return limitedMinutiaes;
+        }
+
+        public static List<Minutiae> RemoveFalseMinutiaes(Bitmap original, List<Minutiae> minutiaes)
+        {
+            List<Minutiae> limitedMinutiaes = new List<Minutiae>();
+            LockBitmap originalBitmapLock = new LockBitmap(original);
+            originalBitmapLock.LockBits(ImageLockMode.ReadOnly);
+
+            float interRidgeDistance = 0.0f;
+            int ridgePixelValue = 0;
+
+            for (int j = 0; j < originalBitmapLock.Height; j++)
+            {
+                for (int i = 0; i < originalBitmapLock.Width; i++)
+                {
+                    if (originalBitmapLock.GetPixel(i, j).R == ridgePixelValue)
+                        interRidgeDistance += 1;
+                }
+            }
+
+            interRidgeDistance /= originalBitmapLock.Width;
+
+            for (int i = 0; i < minutiaes.Count; i++)
+            {
+                for (int j = 1; j < minutiaes.Count - 1; j++)
+                {
+                    float distance = Minutiae.Distance(minutiaes[i], minutiaes[j]);
+                    if (distance < interRidgeDistance)
+                    {
+                        // TODO
+                    }
+                }
+            }
+
+            originalBitmapLock.UnlockBits();
+            return limitedMinutiaes;
         }
 
         public static Bitmap MarkMinutiaes(Bitmap original, MinutiaesResult minutiaesResult)
         {
             Bitmap processedBmp = new Bitmap(original);
-            float circleWidth = 3;
+            float circleWidth = 2;
 
             // Center - purple
             // Termination - red (crossing number = 1)
