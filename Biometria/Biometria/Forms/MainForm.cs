@@ -106,9 +106,11 @@ namespace Biometria
                 minutiaesResult2 = Effect.Rotation(minutiaesResult2, maxalfa, (minutiaesResult.CenterX - minutiaesResult2.CenterX), (minutiaesResult.CenterY - minutiaesResult2.CenterY));
                 o = maxo;
 
+                Bitmap minutiaesAlignBitmapImage = Effect.MarkMinutiaes(thinningBitmapImage2, minutiaesResult2);
                 secondForm.SetBinarizedImage(binarizationBitmapImage2);
                 secondForm.SetThinnedImage(thinningBitmapImage2);
                 secondForm.SetMinutiaesImage(minutiaesBitmapImage2);
+                secondForm.SetMinutiaesAllign(minutiaesAlignBitmapImage);
                 secondForm.Show();
                 MessageBox.Show(minutiaesResult2.Minutiaes.Count.ToString(), "Liczba minucji 2", MessageBoxButtons.OK);
 

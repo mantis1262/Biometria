@@ -36,5 +36,10 @@ namespace Biometria.Forms
         {
             minutiaesImage.Image = bitmap;
         }
+
+        public void SetMinutiaesAllign(Bitmap bitmap)
+        {
+            minutiaesAllign.Image = bitmap;
+        }
     }
 }

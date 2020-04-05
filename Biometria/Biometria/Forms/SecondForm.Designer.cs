@@ -34,9 +34,11 @@
             this.minutiaesLabel = new System.Windows.Forms.Label();
             this.thinningLabel = new System.Windows.Forms.Label();
             this.binarizationLabel = new System.Windows.Forms.Label();
+            this.minutiaesAllign = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.minutiaesImage)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.thinningImage)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.binarizationImage)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.minutiaesAllign)).BeginInit();
             this.SuspendLayout();
             // 
             // minutiaesImage
@@ -96,12 +98,22 @@
             this.binarizationLabel.TabIndex = 9;
             this.binarizationLabel.Text = "Binaryzacja";
             // 
+            // minutiaesAllign
+            // 
+            this.minutiaesAllign.Location = new System.Drawing.Point(1187, 63);
+            this.minutiaesAllign.Name = "minutiaesAllign";
+            this.minutiaesAllign.Size = new System.Drawing.Size(100, 50);
+            this.minutiaesAllign.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
+            this.minutiaesAllign.TabIndex = 15;
+            this.minutiaesAllign.TabStop = false;
+            // 
             // SecondForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
-            this.ClientSize = new System.Drawing.Size(1041, 478);
+            this.ClientSize = new System.Drawing.Size(1385, 478);
+            this.Controls.Add(this.minutiaesAllign);
             this.Controls.Add(this.minutiaesImage);
             this.Controls.Add(this.thinningImage);
             this.Controls.Add(this.binarizationImage);
@@ -114,6 +126,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.minutiaesImage)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.thinningImage)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.binarizationImage)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.minutiaesAllign)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -126,6 +139,7 @@
         private System.Windows.Forms.Label minutiaesLabel;
         private System.Windows.Forms.PictureBox binarizationImage;
         private System.Windows.Forms.PictureBox thinningImage;
-        private System.Windows.Forms.PictureBox minutiaesImage; 
+        private System.Windows.Forms.PictureBox minutiaesImage;
+        private System.Windows.Forms.PictureBox minutiaesAllign;
     }
 }
