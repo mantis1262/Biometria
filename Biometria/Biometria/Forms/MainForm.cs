@@ -48,7 +48,7 @@ namespace Biometria
                 thinningBitmapImage = Effect.ClipBoundaries(thinningBitmapImage, 10);
                 thinningBitmapImage = Effect.RemoveBugPixels(thinningBitmapImage);
                 thinningImage.Image = thinningBitmapImage;
-                MinutiaesResult minutiaesResult = Effect.ExtractMinutiaes(thinningBitmapImage, 40, 300);
+                MinutiaesResult minutiaesResult = Effect.ExtractMinutiaes(thinningBitmapImage, 40, 300, 2);
                 // Center - purple
                 // Termination - red (crossing number = 1)
                 // Bifurcation - blue (crossing number = 3)
