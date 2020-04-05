@@ -728,7 +728,7 @@ namespace Biometria.Helpers
             return processedBmp;
         }
 
-        public static MinutiaesResult Rotation(MinutiaesResult original, double alfa)
+        public static MinutiaesResult Rotation(MinutiaesResult original, double alfa, int DX, int DY)
         {
             MinutiaesResult result = new MinutiaesResult();
             result.CenterX = original.CenterX;
@@ -736,8 +736,8 @@ namespace Biometria.Helpers
             for (int i = 0; i < original.Minutiaes.Count; i++)
             {
 
-                int tempX = (int)(Math.Cos(alfa) * (original.Minutiaes[i].X - original.CenterX) - Math.Sin(alfa) * (original.Minutiaes[i].Y - original.CenterY) + original.CenterX);
-                int tempY = (int)(Math.Sin(alfa) * (original.Minutiaes[i].X - original.CenterX) + Math.Cos(alfa) * (original.Minutiaes[i].Y - original.CenterY) + original.CenterY);
+                int tempX = (int)(Math.Cos(alfa) * original.Minutiaes[i].X - Math.Sin(alfa) * original.Minutiaes[i].Y + DX);
+                int tempY = (int)(Math.Sin(alfa) * original.Minutiaes[i].X + Math.Cos(alfa) * original.Minutiaes[i].Y + DY);
                 result.Minutiaes.Add(new Minutiae(tempX, tempY, original.Minutiaes[i].CrossingNumber));
             }
 
