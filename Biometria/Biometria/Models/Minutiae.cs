@@ -67,5 +67,12 @@ namespace Biometria.Models
             else
                 return false;
         }
+
+        public bool ChceckFit(Minutiae obj, double r, double angleZero)
+        {
+            double S = Math.Sqrt(Math.Pow(obj.X - this.X,2) + Math.Pow(obj.Y - this.Y, 2));
+            double D = Math.Min(Math.Abs(obj.OrientationAngle - this.OrientationAngle), 360 - Math.Abs(obj.OrientationAngle - this.OrientationAngle));
+            return (S<=r && D <= angleZero && obj.CrossingNumber == this.CrossingNumber);
+        }
     }
 }

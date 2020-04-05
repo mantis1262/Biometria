@@ -1,4 +1,4 @@
-﻿using Biometria.Models;
+using Biometria.Models;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -728,6 +728,24 @@ namespace Biometria.Helpers
             return processedBmp;
         }
 
+        public static MinutiaesResult Rotation(MinutiaesResult original, double alfa)
+        {
+            MinutiaesResult result = new MinutiaesResult();
+            result.CenterX = original.CenterX;
+            result.CenterY = original.CenterY;
+            for (int i = 0; i < original.Minutiaes.Count; i++)
+            {
+
+                int tempX = (int)(Math.Cos(alfa) * (original.Minutiaes[i].X - original.CenterX) - Math.Sin(alfa) * (original.Minutiaes[i].Y - original.CenterY) + original.CenterX);
+                int tempY = (int)(Math.Sin(alfa) * (original.Minutiaes[i].X - original.CenterX) + Math.Cos(alfa) * (original.Minutiaes[i].Y - original.CenterY) + original.CenterY);
+                result.Minutiaes.Add(new Minutiae(tempX, tempY, original.Minutiaes[i].CrossingNumber));
+            }
+
+
+            return result;
+
+        }
+           
 
     }
 }

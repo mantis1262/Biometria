@@ -40,7 +40,7 @@ namespace Biometria
                 _imagePath = imagePath;
                 _originalBitmap = BitmapFactory.CreateBitmap(imagePath);
                 Bitmap grayBitmapImage = Effect.GrayMode(_originalBitmap);
-                //grayBitmapImage = Effect.MedianFilter(grayBitmapImage, 9);
+                grayBitmapImage = Effect.MedianFilter(grayBitmapImage, 3);
                 Bitmap binarizationBitmapImage = Otsu.threshold(grayBitmapImage, Otsu.getOtsuThreshold(grayBitmapImage));
                 binarizationBitmapImage = Effect.ClipBoundaries(binarizationBitmapImage, 10);
                 binarizationImage.Image = binarizationBitmapImage;
@@ -55,6 +55,35 @@ namespace Biometria
                 Bitmap minutiaesBitmapImage = Effect.MarkMinutiaes(thinningBitmapImage, minutiaesResult);
                 minutiaesImage.Image = minutiaesBitmapImage;
                 MessageBox.Show(minutiaesResult.Minutiaes.Count.ToString(), "Liczba minucji", MessageBoxButtons.OK);
+
+
+                Bitmap grayBitmapImage2 = Effect.GrayMode(BitmapFactory.CreateBitmap(Path.GetImagePath()));
+                grayBitmapImage2 = Effect.MedianFilter(grayBitmapImage2, 3);
+                Bitmap binarizationBitmapImage2 = Otsu.threshold(grayBitmapImage2, Otsu.getOtsuThreshold(grayBitmapImage2));
+                binarizationBitmapImage2 = Effect.ClipBoundaries(binarizationBitmapImage2, 10);
+                Bitmap thinningBitmapImage2 = Effect.Skeletonization(binarizationBitmapImage2);
+                thinningBitmapImage2 = Effect.ClipBoundaries(thinningBitmapImage2, 10);
+                thinningBitmapImage2 = Effect.RemoveBugPixels(thinningBitmapImage2);
+                MinutiaesResult minutiaesResult2 = Effect.ExtractMinutiaes(thinningBitmapImage2, 40, 300, 2);
+                Bitmap minutiaesBitmapImage2 = Effect.MarkMinutiaes(thinningBitmapImage2, minutiaesResult2);
+               // thinningImage.Image = minutiaesBitmapImage2;
+
+                double o = 0;
+                foreach(Minutiae minutiae2 in minutiaesResult2.Minutiaes)
+                {
+                    foreach (Minutiae minutiae in minutiaesResult.Minutiaes)
+                    {
+                        if (minutiae.ChceckFit(minutiae2, 15, 30)) // sprawdzana minucjia, akceptowalna odleglosci i roznica katów
+                        {
+                            o += 1;
+                            break;
+                        }
+                    }
+                }
+               // if(o >= minutiaesResult.Minutiaes.Count * 0.6)
+                     MessageBox.Show(o.ToString() +
+                         "  " + (o/minutiaesResult.Minutiaes.Count >= (minutiaesResult2.Minutiaes.Count * 1.0/minutiaesResult.Minutiaes.Count) * 0.7).ToString(),
+                         "Licza dopasowanych minucji", MessageBoxButtons.OK);
             }
         }
 
