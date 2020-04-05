@@ -1,6 +1,6 @@
 ﻿namespace Biometria
 {
-    partial class MainForm
+    partial class SecondWindow
     {
         /// <summary>
         /// Wymagana zmienna projektanta.

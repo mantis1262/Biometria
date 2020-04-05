@@ -11,10 +11,11 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Biometria.Models;
 using System.Diagnostics;
+using Biometria.Forms;
 
 namespace Biometria
 {
-    public partial class MainForm : Form
+    public partial class SecondWindow : Form
     {
         private string _imagePath;
         private Bitmap _originalBitmap;
@@ -23,7 +24,7 @@ namespace Biometria
 
         public Bitmap OriginalBitmap { get => _originalBitmap; set => _originalBitmap = value; }
 
-        public MainForm()
+        public SecondWindow()
         {
             InitializeComponent();
         }
@@ -57,6 +58,7 @@ namespace Biometria
                 minutiaesImage.Image = minutiaesBitmapImage;
                 MessageBox.Show(minutiaesResult.Minutiaes.Count.ToString(), "Liczba minucji 1", MessageBoxButtons.OK);
                 //---------------------------------------------------------------------------------------------------
+                SecondForm secondForm = new SecondForm();
 
                 Bitmap grayBitmapImage2 = Effect.GrayMode(BitmapFactory.CreateBitmap(Path.GetImagePath()));
                 grayBitmapImage2 = Effect.MedianFilter(grayBitmapImage2, 3);
@@ -66,7 +68,7 @@ namespace Biometria
                 thinningBitmapImage2 = Effect.ClipBoundaries(thinningBitmapImage2, 10);
                 thinningBitmapImage2 = Effect.RemoveBugPixels(thinningBitmapImage2);
                 MinutiaesResult minutiaesResult2 = Effect.ExtractMinutiaes(thinningBitmapImage2, 30, 6, 10, 70);
-                MessageBox.Show(minutiaesResult2.Minutiaes.Count.ToString(), "Liczba minucji 2", MessageBoxButtons.OK);
+                Bitmap minutiaesBitmapImage2 = Effect.MarkMinutiaes(thinningBitmapImage2, minutiaesResult2);
                 // Bitmap minutiaesBitmapImage2 = Effect.MarkMinutiaes(thinningBitmapImage2, minutiaesResult2);
                 // thinningImage.Image = minutiaesBitmapImage2;
                 double alfa = 0;
@@ -103,10 +105,17 @@ namespace Biometria
 
                 minutiaesResult2 = Effect.Rotation(minutiaesResult2, maxalfa, (minutiaesResult.CenterX - minutiaesResult2.CenterX), (minutiaesResult.CenterY - minutiaesResult2.CenterY));
                 o = maxo;
-                Bitmap result = new Bitmap(thinningBitmapImage2.Width * 2, thinningBitmapImage2.Height * 2);
+
+                secondForm.SetBinarizedImage(binarizationBitmapImage2);
+                secondForm.SetThinnedImage(thinningBitmapImage2);
+                secondForm.SetMinutiaesImage(minutiaesBitmapImage2);
+                secondForm.Show();
+                MessageBox.Show(minutiaesResult2.Minutiaes.Count.ToString(), "Liczba minucji 2", MessageBoxButtons.OK);
+
+                //Bitmap result = new Bitmap(thinningBitmapImage2.Width * 2, thinningBitmapImage2.Height * 2);
                 // minutiaesResult2.CenterX = (int)((Math.Cos(maxalfa) * minutiaesResult2.CenterX - Math.Sin(maxalfa) * minutiaesResult2.CenterX + (minutiaesResult.CenterX - minutiaesResult2.CenterX)));
                 // minutiaesResult2.CenterY = (int)((Math.Cos(maxalfa) * minutiaesResult2.CenterY - Math.Sin(maxalfa) * minutiaesResult2.CenterY + (minutiaesResult.CenterY - minutiaesResult2.CenterY)));
-               // Bitmap minutiaesBitmapImage2 = Effect.MarkMinutiaes(result, minutiaesResult2);
+                // Bitmap minutiaesBitmapImage2 = Effect.MarkMinutiaes(result, minutiaesResult2);
                 //thinningImage.Image = minutiaesBitmapImage2;
 
                 //if(o >= minutiaesResult2.Minutiaes.Count)
