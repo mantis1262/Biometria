@@ -49,14 +49,14 @@ namespace Biometria
                 thinningBitmapImage = Effect.ClipBoundaries(thinningBitmapImage, 10);
                 thinningBitmapImage = Effect.RemoveBugPixels(thinningBitmapImage);
                 thinningImage.Image = thinningBitmapImage;
-                MinutiaesResult minutiaesResult = Effect.ExtractMinutiaes(thinningBitmapImage, 40, 300, 2);
+                MinutiaesResult minutiaesResult = Effect.ExtractMinutiaes(thinningBitmapImage, 30, 6, 10, 70);
                 // Center - purple
                 // Termination - red (crossing number = 1)
                 // Bifurcation - blue (crossing number = 3)
                 Bitmap minutiaesBitmapImage = Effect.MarkMinutiaes(thinningBitmapImage, minutiaesResult);
                 minutiaesImage.Image = minutiaesBitmapImage;
-                MessageBox.Show(minutiaesResult.Minutiaes.Count.ToString(), "Liczba minucji", MessageBoxButtons.OK);
-
+                MessageBox.Show(minutiaesResult.Minutiaes.Count.ToString(), "Liczba minucji 1", MessageBoxButtons.OK);
+                //---------------------------------------------------------------------------------------------------
 
                 Bitmap grayBitmapImage2 = Effect.GrayMode(BitmapFactory.CreateBitmap(Path.GetImagePath()));
                 grayBitmapImage2 = Effect.MedianFilter(grayBitmapImage2, 3);
@@ -65,10 +65,11 @@ namespace Biometria
                 Bitmap thinningBitmapImage2 = Effect.Skeletonization(binarizationBitmapImage2);
                 thinningBitmapImage2 = Effect.ClipBoundaries(thinningBitmapImage2, 10);
                 thinningBitmapImage2 = Effect.RemoveBugPixels(thinningBitmapImage2);
-                MinutiaesResult minutiaesResult2 = Effect.ExtractMinutiaes(thinningBitmapImage2, 40, 300, 2);
-               // Bitmap minutiaesBitmapImage2 = Effect.MarkMinutiaes(thinningBitmapImage2, minutiaesResult2);
+                MinutiaesResult minutiaesResult2 = Effect.ExtractMinutiaes(thinningBitmapImage2, 30, 6, 10, 70);
+                MessageBox.Show(minutiaesResult2.Minutiaes.Count.ToString(), "Liczba minucji 2", MessageBoxButtons.OK);
+                // Bitmap minutiaesBitmapImage2 = Effect.MarkMinutiaes(thinningBitmapImage2, minutiaesResult2);
                 // thinningImage.Image = minutiaesBitmapImage2;
-                double alfa = 0;  
+                double alfa = 0;
                 double maxalfa = 0; // kat rotacji dla najlepszego dopasowania
                 double o;
                 double maxo = 0;    // ilosc dopasowanych minucji dla najlepszego dopasowania
@@ -89,7 +90,7 @@ namespace Biometria
                         }
                     }
 
-                    if(o > maxo)
+                    if (o > maxo)
                     {
                         maxo = o;
                         maxalfa = alfa;
@@ -103,20 +104,22 @@ namespace Biometria
                 minutiaesResult2 = Effect.Rotation(minutiaesResult2, maxalfa, (minutiaesResult.CenterX - minutiaesResult2.CenterX), (minutiaesResult.CenterY - minutiaesResult2.CenterY));
                 o = maxo;
                 Bitmap result = new Bitmap(thinningBitmapImage2.Width * 2, thinningBitmapImage2.Height * 2);
-               // minutiaesResult2.CenterX = (int)((Math.Cos(maxalfa) * minutiaesResult2.CenterX - Math.Sin(maxalfa) * minutiaesResult2.CenterX + (minutiaesResult.CenterX - minutiaesResult2.CenterX)));
-               // minutiaesResult2.CenterY = (int)((Math.Cos(maxalfa) * minutiaesResult2.CenterY - Math.Sin(maxalfa) * minutiaesResult2.CenterY + (minutiaesResult.CenterY - minutiaesResult2.CenterY)));
+                // minutiaesResult2.CenterX = (int)((Math.Cos(maxalfa) * minutiaesResult2.CenterX - Math.Sin(maxalfa) * minutiaesResult2.CenterX + (minutiaesResult.CenterX - minutiaesResult2.CenterX)));
+                // minutiaesResult2.CenterY = (int)((Math.Cos(maxalfa) * minutiaesResult2.CenterY - Math.Sin(maxalfa) * minutiaesResult2.CenterY + (minutiaesResult.CenterY - minutiaesResult2.CenterY)));
                 Bitmap minutiaesBitmapImage2 = Effect.MarkMinutiaes(result, minutiaesResult2);
-                 thinningImage.Image = minutiaesBitmapImage2;
-                
-                //if(o >= minutiaesResult2.Minutiaes.Count)
-                    MessageBox.Show(maxo.ToString() +
-                         "  " + maxalfa,
-                         "Licza dopasowanych minucji", MessageBoxButtons.OK);
-                if (o >= 0.6 * minutiaesResult2.Minutiaes.Count)
-                    Debug.WriteLine("Dopasowano");
-                else
-                    Debug.WriteLine("Niedoasowano");
+                thinningImage.Image = minutiaesBitmapImage2;
 
+                //if(o >= minutiaesResult2.Minutiaes.Count)
+                string testText = "";
+                if (o >= 0.6 * minutiaesResult2.Minutiaes.Count)
+                    testText = "Dopasowano";
+                else
+                    testText = "Niedopasowano";
+                MessageBox.Show("Minucje dopasowane: " + maxo.ToString() + "\n" +
+                    "Kąt rotacji: " + maxalfa.ToString() + "\n" +
+                    "Rezultat: " + testText,
+                     "Dopasowanie", MessageBoxButtons.OK);
+                
             }
         }
 

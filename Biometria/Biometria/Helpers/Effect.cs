@@ -261,7 +261,7 @@ namespace Biometria.Helpers
             return processedBmp;
         }
         
-        public static MinutiaesResult ExtractMinutiaes(Bitmap original, int offsetFromImageBorders, int offsetFromCenter, int circleRadius)
+        public static MinutiaesResult ExtractMinutiaes(Bitmap original, int offsetFromImageBorders, int threshold, int angleIntervalLeft, int angleIntervalRight)
         {
             List<Minutiae> minutiaes = new List<Minutiae>();
             LockBitmap originalBitmapLock = new LockBitmap(original);
@@ -343,7 +343,7 @@ namespace Biometria.Helpers
             limitedMinutiaes = RemoveMinutiaesNearBorders(minutiaes, original.Width, original.Height, offsetFromImageBorders);
 
             // remove false minutiaes
-            //limitedMinutiaes = RemoveFalseMinutiaes(original, limitedMinutiaes);
+            limitedMinutiaes = RemoveFalseMinutiaes(original, limitedMinutiaes, threshold, angleIntervalLeft, angleIntervalRight);
 
             return new MinutiaesResult(centerPosX, centerPosY, limitedMinutiaes);
         }
@@ -460,46 +460,60 @@ namespace Biometria.Helpers
             return limitedMinutiaes;
         }
 
-        public static List<Minutiae> RemoveFalseMinutiaes(Bitmap original, List<Minutiae> minutiaes)
+        public static List<Minutiae> RemoveFalseMinutiaes(Bitmap original, List<Minutiae> minutiaes, float threshold, float angleIntervalLeft, float angleIntervalRight)
         {
-            List<Minutiae> limitedMinutiaes = new List<Minutiae>();
-            LockBitmap originalBitmapLock = new LockBitmap(original);
-            originalBitmapLock.LockBits(ImageLockMode.ReadOnly);
+            List<Minutiae> limitedMinutiaes = new List<Minutiae>(minutiaes);
+            List<Minutiae> minutiaesToRemove = new List<Minutiae>();
 
-            float interRidgeDistance = 0.0f;
-            int ridgePixelValue = 0;
-
-            for (int j = 0; j < originalBitmapLock.Height; j++)
+            for (int i = 0; i < minutiaes.Count - 1; i++)
             {
-                for (int i = 0; i < originalBitmapLock.Width; i++)
+                if (!minutiaesToRemove.Contains(minutiaes[i])) //  && minutiaes[i].CrossingNumber == 1
                 {
-                    if (originalBitmapLock.GetPixel(i, j).R == ridgePixelValue)
-                        interRidgeDistance += 1;
-                }
-            }
-
-            interRidgeDistance /= originalBitmapLock.Width;
-
-            for (int i = 0; i < minutiaes.Count; i++)
-            {
-                for (int j = 1; j < minutiaes.Count - 1; j++)
-                {
-                    float distance = Minutiae.Distance(minutiaes[i], minutiaes[j]);
-                    if (distance < interRidgeDistance)
+                    for (int j = i + 1; j < minutiaes.Count; j++)
                     {
-                        // TODO
+                        if (!minutiaesToRemove.Contains(minutiaes[j])) // && minutiaes[i].CrossingNumber == 1
+                        {
+                            float distance = Minutiae.Distance(minutiaes[i], minutiaes[j]);
+                            if (distance < threshold)
+                            {
+                                //float angleDiff = Math.Abs(minutiaes[i].OrientationAngle - minutiaes[j].OrientationAngle);
+                                //if (angleDiff >= angleIntervalLeft && angleDiff <= angleIntervalRight)
+                                //{
+                                //    int lineVectorPosX = minutiaes[j].X - minutiaes[i].X;
+                                //    int lineVectorPosY = minutiaes[j].Y - minutiaes[i].Y;
+                                //    float lineAngle = ConvertToDegrees(VectorsAngle(1, 0, lineVectorPosX, lineVectorPosY));
+                                //    lineAngle = lineAngle >= 0 ? lineAngle : (360 + lineAngle);
+
+                                //    float diffOne = Math.Abs(lineAngle - minutiaes[i].OrientationAngle);
+                                //    float diffTwo = Math.Abs(lineAngle - minutiaes[j].OrientationAngle);
+
+                                //    if ((diffOne >= angleIntervalLeft && diffOne <= angleIntervalRight) || (diffTwo >= angleIntervalLeft && diffTwo <= angleIntervalRight))
+                                //    {
+                                //        minutiaesToRemove.Add(minutiaes[i]);
+                                //        minutiaesToRemove.Add(minutiaes[j]);
+                                //    }
+                                //}  
+                                minutiaesToRemove.Add(minutiaes[i]);
+                                minutiaesToRemove.Add(minutiaes[j]);
+                                break;
+                            }
+                        }
                     }
                 }
             }
 
-            originalBitmapLock.UnlockBits();
+            foreach (Minutiae minutiae in minutiaesToRemove)
+            {
+                limitedMinutiaes.Remove(minutiae);
+            }
+            
             return limitedMinutiaes;
         }
 
         public static Bitmap MarkMinutiaes(Bitmap original, MinutiaesResult minutiaesResult)
         {
             Bitmap processedBmp = new Bitmap(original);
-            float shapeWidth = 2;
+            float shapeWidth = 3;
 
             // Center - purple
             // Termination - red (crossing number = 1)
@@ -519,11 +533,11 @@ namespace Biometria.Helpers
                     { 
                         if (shapeType == 0)
                         {
-                            grf.DrawEllipse(pen, posX, posY, shapeWidth, shapeWidth);
+                            grf.DrawEllipse(pen, posX - shapeWidth, posY - shapeWidth, shapeWidth, shapeWidth);
                         }
                         else
                         {
-                            grf.DrawRectangle(pen, posX, posY, shapeWidth, shapeWidth);
+                            grf.DrawRectangle(pen, posX - shapeWidth, posY - shapeWidth, shapeWidth, shapeWidth);
                         }
 
                         grf.DrawLine(pen, (float)posX, (float)posY, (float)(posX + minutiae.DirectionX * shapeWidth), (float)(posY + minutiae.DirectionY * shapeWidth));
@@ -538,7 +552,7 @@ namespace Biometria.Helpers
                 {
                     int posX = minutiaesResult.CenterX - 10;
                     int posY = minutiaesResult.CenterY - 10;
-                    grf.DrawEllipse(penRed, new RectangleF(posX, posY, 10, 10));
+                    grf.DrawEllipse(penRed, new RectangleF(posX - shapeWidth, posY - shapeWidth, 10, 10));
                 }
             }
 
