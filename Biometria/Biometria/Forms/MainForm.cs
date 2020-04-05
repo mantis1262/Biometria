@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Biometria.Models;
+using System.Diagnostics;
 
 namespace Biometria
 {
@@ -67,10 +68,10 @@ namespace Biometria
                 MinutiaesResult minutiaesResult2 = Effect.ExtractMinutiaes(thinningBitmapImage2, 40, 300, 2);
                // Bitmap minutiaesBitmapImage2 = Effect.MarkMinutiaes(thinningBitmapImage2, minutiaesResult2);
                 // thinningImage.Image = minutiaesBitmapImage2;
-                double alfa = 0;
-                double maxalfa = 0;
+                double alfa = 0;  
+                double maxalfa = 0; // kat rotacji dla najlepszego dopasowania
                 double o;
-                double maxo = 0;
+                double maxo = 0;    // ilosc dopasowanych minucji dla najlepszego dopasowania
                 do
                 {
                     MinutiaesResult temp = Effect.Rotation(minutiaesResult2, alfa, (minutiaesResult.CenterX - minutiaesResult2.CenterX), (minutiaesResult.CenterY - minutiaesResult2.CenterY));
@@ -80,7 +81,7 @@ namespace Biometria
                     {
                         foreach (Minutiae minutiae in minutiaesResult.Minutiaes)
                         {
-                            if (minutiae.ChceckFit(minutiae2, 15, 30)) // sprawdzana minucjia, akceptowalna odleglosci i roznica katów
+                            if (minutiae2.ChceckFit(minutiae, 15, 30)) // sprawdzana minucjia, akceptowalna odleglosci i roznica katów
                             {
                                 o += 1;
                                 break;
@@ -111,6 +112,10 @@ namespace Biometria
                     MessageBox.Show(maxo.ToString() +
                          "  " + maxalfa,
                          "Licza dopasowanych minucji", MessageBoxButtons.OK);
+                if (o >= 0.6 * minutiaesResult2.Minutiaes.Count)
+                    Debug.WriteLine("Dopasowano");
+                else
+                    Debug.WriteLine("Niedoasowano");
 
             }
         }
