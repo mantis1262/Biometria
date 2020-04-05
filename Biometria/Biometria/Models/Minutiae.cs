@@ -12,14 +12,15 @@ namespace Biometria.Models
         private int _y;
         private int _directionX;
         private int _directionY;
-        private float _angle;
+        private float _distanceFromZeroPoint;
+        private float _orientationAngle;
         private int _crossingNumber;
 
         public Minutiae()
         {
             _x = 0;
             _y = 0;
-            _angle = 0.0f;
+            _orientationAngle = 0.0f;
             _crossingNumber = 0;
         }
 
@@ -27,7 +28,7 @@ namespace Biometria.Models
         {
             _x = x;
             _y = y;
-            _angle = 0.0f;
+            _orientationAngle = 0.0f;
             _crossingNumber = crossingNumber;
         }
 
@@ -39,8 +40,15 @@ namespace Biometria.Models
 
         public int DirectionY { get => _directionY; set => _directionY = value; }
 
-        public float Angle { get => _angle; set => _angle = value; }
+        public float DistanceFromZeroPoint { get => _distanceFromZeroPoint; set => _distanceFromZeroPoint = value; }
+
+        public float OrientationAngle { get => _orientationAngle; set => _orientationAngle = value; }
 
         public int CrossingNumber { get => _crossingNumber; set => _crossingNumber = value; }
+
+        public static float Distance(Minutiae m1, Minutiae m2)
+        {
+            return (float)Math.Sqrt(Math.Pow(m1.X - m2.X, 2) + Math.Pow(m1.Y - m2.Y, 2));
+        }
     }
 }

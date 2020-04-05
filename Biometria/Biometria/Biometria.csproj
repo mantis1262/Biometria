@@ -57,6 +57,7 @@
     <Compile Include="Helpers\LockBitmap.cs" />
     <Compile Include="Helpers\Otsu.cs" />
     <Compile Include="Helpers\Path.cs" />
+    <Compile Include="Models\ColorsValues.cs" />
     <Compile Include="Models\Minutiae.cs" />
     <Compile Include="Models\MinutiaesResult.cs" />
     <Compile Include="Program.cs" />
