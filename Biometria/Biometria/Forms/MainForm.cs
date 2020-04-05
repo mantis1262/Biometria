@@ -106,8 +106,8 @@ namespace Biometria
                 Bitmap result = new Bitmap(thinningBitmapImage2.Width * 2, thinningBitmapImage2.Height * 2);
                 // minutiaesResult2.CenterX = (int)((Math.Cos(maxalfa) * minutiaesResult2.CenterX - Math.Sin(maxalfa) * minutiaesResult2.CenterX + (minutiaesResult.CenterX - minutiaesResult2.CenterX)));
                 // minutiaesResult2.CenterY = (int)((Math.Cos(maxalfa) * minutiaesResult2.CenterY - Math.Sin(maxalfa) * minutiaesResult2.CenterY + (minutiaesResult.CenterY - minutiaesResult2.CenterY)));
-                Bitmap minutiaesBitmapImage2 = Effect.MarkMinutiaes(result, minutiaesResult2);
-                thinningImage.Image = minutiaesBitmapImage2;
+               // Bitmap minutiaesBitmapImage2 = Effect.MarkMinutiaes(result, minutiaesResult2);
+                //thinningImage.Image = minutiaesBitmapImage2;
 
                 //if(o >= minutiaesResult2.Minutiaes.Count)
                 string testText = "";

@@ -752,7 +752,7 @@ namespace Biometria.Helpers
 
                 int tempX = (int)(Math.Cos(alfa) * original.Minutiaes[i].X - Math.Sin(alfa) * original.Minutiaes[i].Y + DX);
                 int tempY = (int)(Math.Sin(alfa) * original.Minutiaes[i].X + Math.Cos(alfa) * original.Minutiaes[i].Y + DY);
-                result.Minutiaes.Add(new Minutiae(tempX, tempY, original.Minutiaes[i].CrossingNumber));
+                result.Minutiaes.Add(new Minutiae(tempX, tempY, (float)(original.Minutiaes[i].OrientationAngle + alfa), original.Minutiaes[i].CrossingNumber));
             }
 
 
