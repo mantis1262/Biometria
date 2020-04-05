@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,7 +16,12 @@ namespace Biometria.Models
         public int CenterY { get => _centerY; set => _centerY = value; }
         public List<Minutiae> Minutiaes { get => _minutiaes; set => _minutiaes = value; }
 
-        public MinutiaesResult(int centerX, int centerY, List<Minutiae> minutiaes)
+        public MinutiaesResult()
+        {
+            Minutiaes = new List<Minutiae>();
+        }
+
+            public MinutiaesResult(int centerX, int centerY, List<Minutiae> minutiaes)
         {
             _centerX = centerX;
             _centerY = centerY;
