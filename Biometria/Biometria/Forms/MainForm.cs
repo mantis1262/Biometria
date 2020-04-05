@@ -40,12 +40,13 @@ namespace Biometria
                 _imagePath = imagePath;
                 _originalBitmap = BitmapFactory.CreateBitmap(imagePath);
                 Bitmap grayBitmapImage = Effect.GrayMode(_originalBitmap);
-                //_originalBitmap = Effect.MedianFilter(_originalBitmap, 4);
+                //grayBitmapImage = Effect.MedianFilter(grayBitmapImage, 9);
                 Bitmap binarizationBitmapImage = Otsu.threshold(grayBitmapImage, Otsu.getOtsuThreshold(grayBitmapImage));
-                binarizationBitmapImage = Effect.ClipBoundaries(binarizationBitmapImage, 255, 10);
+                binarizationBitmapImage = Effect.ClipBoundaries(binarizationBitmapImage, 10);
                 binarizationImage.Image = binarizationBitmapImage;
                 Bitmap thinningBitmapImage = Effect.Skeletonization(binarizationBitmapImage);
-                thinningBitmapImage = Effect.ClipBoundaries(thinningBitmapImage, 255, 10);
+                thinningBitmapImage = Effect.ClipBoundaries(thinningBitmapImage, 10);
+                thinningBitmapImage = Effect.RemoveBugPixels(thinningBitmapImage);
                 thinningImage.Image = thinningBitmapImage;
                 MinutiaesResult minutiaesResult = Effect.ExtractMinutiaes(thinningBitmapImage, 40, 300);
                 // Center - purple

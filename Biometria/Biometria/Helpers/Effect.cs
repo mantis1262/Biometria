@@ -47,9 +47,9 @@ namespace Biometria.Helpers
                 for (int j = 0; j < originalBitmapLock.Height; j++)
                 {
                     if (originalBitmapLock.GetPixel(i, j).R > granica)
-                        processedBitmapLock.SetPixel(i, j, Color.FromArgb(255, 255, 255, 255));
+                        processedBitmapLock.SetPixel(i, j, Color.FromArgb(255, ColorsValues.WHITE, ColorsValues.WHITE, ColorsValues.WHITE));
                     else
-                        processedBitmapLock.SetPixel(i, j, Color.FromArgb(255, 0, 0, 0));
+                        processedBitmapLock.SetPixel(i, j, Color.FromArgb(255, ColorsValues.BLACK, ColorsValues.BLACK, ColorsValues.BLACK));
                 }
             }
 
@@ -89,7 +89,7 @@ namespace Biometria.Helpers
                 {
                     if (i == 0 || i == originalToProcessBitmapLock.Width - 1 || j == 0 || j == originalToProcessBitmapLock.Height - 1)
                     {
-                        originalToProcessBitmapLock.SetPixel(i, j, Color.FromArgb(255, 255, 255, 255));
+                        originalToProcessBitmapLock.SetPixel(i, j, Color.FromArgb(255, ColorsValues.WHITE, ColorsValues.WHITE, ColorsValues.WHITE));
                     }
                     else
                     {
@@ -103,14 +103,12 @@ namespace Biometria.Helpers
             {
                 for (int j = 0; j < processedBitmapLock.Height; j++)
                 {
-                    processedBitmapLock.SetPixel(i,j,Color.FromArgb(255,255,255,255));
+                    processedBitmapLock.SetPixel(i,j,Color.FromArgb(255, ColorsValues.WHITE, ColorsValues.WHITE, ColorsValues.WHITE));
 
                 }
             }
 
-
-
-                    bool ifChanged = false;
+            bool ifChanged = false;
 
             do
             {
@@ -121,8 +119,8 @@ namespace Biometria.Helpers
                     {
                         if (originalBitmapLock.GetPixel(i, j).R == 0)
                         {
-                            if (originalToProcessBitmapLock.GetPixel(i - 1, j).R == 255 || originalToProcessBitmapLock.GetPixel(i + 1, j).R == 255
-                                || originalToProcessBitmapLock.GetPixel(i, j - 1).R == 255 || originalToProcessBitmapLock.GetPixel(i, j + 1).R == 255)
+                            if (originalToProcessBitmapLock.GetPixel(i - 1, j).R == ColorsValues.WHITE || originalToProcessBitmapLock.GetPixel(i + 1, j).R == ColorsValues.WHITE
+                                || originalToProcessBitmapLock.GetPixel(i, j - 1).R == ColorsValues.WHITE || originalToProcessBitmapLock.GetPixel(i, j + 1).R == ColorsValues.WHITE)
                             {
                                 processedBitmapLock.SetPixel(i, j, Color.FromArgb(255, 2, 2, 2));
 
@@ -143,8 +141,8 @@ namespace Biometria.Helpers
                                 }
                                 //  ifChanged = true;
                             }
-                            else if (originalToProcessBitmapLock.GetPixel(i - 1, j - 1).R == 255 || originalToProcessBitmapLock.GetPixel(i + 1, j + 1).R == 255
-                                || originalToProcessBitmapLock.GetPixel(i + 1, j - 1).R == 255 || originalToProcessBitmapLock.GetPixel(i - 1, j + 1).R == 255)
+                            else if (originalToProcessBitmapLock.GetPixel(i - 1, j - 1).R == ColorsValues.WHITE || originalToProcessBitmapLock.GetPixel(i + 1, j + 1).R == ColorsValues.WHITE
+                                || originalToProcessBitmapLock.GetPixel(i + 1, j - 1).R == ColorsValues.WHITE || originalToProcessBitmapLock.GetPixel(i - 1, j + 1).R == ColorsValues.WHITE)
                             {
                                 processedBitmapLock.SetPixel(i, j, Color.FromArgb(255, 3, 3, 3));
                                 //  ifChanged = true;
@@ -156,7 +154,7 @@ namespace Biometria.Helpers
                         }
                         else
                         {
-                            processedBitmapLock.SetPixel(i, j, Color.FromArgb(255, 255, 255, 255));
+                            processedBitmapLock.SetPixel(i, j, Color.FromArgb(255, ColorsValues.WHITE, ColorsValues.WHITE, ColorsValues.WHITE));
                         }
                     }
                 }
@@ -181,21 +179,17 @@ namespace Biometria.Helpers
                             value /= sumChecker;
                             if (cuts.Contains(value))
                             {
-                                processedBitmapLock.SetPixel(i, j, Color.FromArgb( 255, 255, 255));
+                                processedBitmapLock.SetPixel(i, j, Color.FromArgb(ColorsValues.WHITE, ColorsValues.WHITE, ColorsValues.WHITE));
                                 ifChanged = true;
                             }
                             else
                             {
-                                processedBitmapLock.SetPixel(i, j, Color.FromArgb( 0, 0, 0));
+                                processedBitmapLock.SetPixel(i, j, Color.FromArgb(ColorsValues.BLACK, ColorsValues.BLACK, ColorsValues.BLACK));
                                 ifChanged = true;
                             }
-
-
                         }
-
                         else
                         {
-
                             ifChanged = false;
                         }
 
@@ -209,33 +203,33 @@ namespace Biometria.Helpers
             {
                 for (int j = 0; j < originalBitmapLock.Height; j++)
                 {
-                    if (processedBitmapLock.GetPixel(i, j).R != 0 && processedBitmapLock.GetPixel(i, j).R != 255)
+                    if (processedBitmapLock.GetPixel(i, j).R != 0 && processedBitmapLock.GetPixel(i, j).R != ColorsValues.WHITE)
                     {
                         int f = processedBitmapLock.GetPixel(i, j).R;
                     }
                 }
             }
 
-
             originalToProcessBitmapLock.UnlockBits();
             originalBitmapLock.UnlockBits();
             processedBitmapLock.UnlockBits();
             return processedBmp;
         }
-        
-        public static MinutiaesResult ExtractMinutiaes(Bitmap original, int offsetFromImageBorders, int offsetFromCenter)
+
+        public static Bitmap RemoveBugPixels(Bitmap original)
         {
-            List<Minutiae> minutiaes = new List<Minutiae>();
+            Bitmap processedBmp = new Bitmap(original);
             LockBitmap originalBitmapLock = new LockBitmap(original);
+            LockBitmap processedBitmapLock = new LockBitmap(processedBmp);
             originalBitmapLock.LockBits(ImageLockMode.ReadOnly);
-            int blackColorLimit = 10;
+            processedBitmapLock.LockBits(ImageLockMode.WriteOnly);
 
             for (int i = 1; i < originalBitmapLock.Width - 1; i++)
             {
                 for (int j = 1; j < originalBitmapLock.Height - 1; j++)
                 {
                     int pixelValue = originalBitmapLock.GetPixel(i, j).R;
-                    if (pixelValue < blackColorLimit)
+                    if (pixelValue == ColorsValues.BLACK)
                     {
                         int[] neighbours = {
                             originalBitmapLock.GetPixel(i - 1, j - 1).R,
@@ -245,8 +239,50 @@ namespace Biometria.Helpers
                             originalBitmapLock.GetPixel(i + 1, j + 1).R,
                             originalBitmapLock.GetPixel(i + 1, j).R,
                             originalBitmapLock.GetPixel(i + 1, j - 1).R,
-                            originalBitmapLock.GetPixel(i, j - 1).R,
+                            originalBitmapLock.GetPixel(i, j - 1).R
+                        };
+
+                        int neighboursCount = 0;
+                        for (int k = 0; k < neighbours.Length; k++)
+                        {
+                            if (neighbours[k] == 0)
+                                ++neighboursCount;
+                        }
+
+                        if (neighboursCount >= 4)
+                            processedBitmapLock.SetPixel(i, j, Color.FromArgb(ColorsValues.WHITE, ColorsValues.WHITE, ColorsValues.WHITE));
+                    }
+                }
+            }
+
+            originalBitmapLock.UnlockBits();
+            processedBitmapLock.UnlockBits();
+
+            return processedBmp;
+        }
+        
+        public static MinutiaesResult ExtractMinutiaes(Bitmap original, int offsetFromImageBorders, int offsetFromCenter)
+        {
+            List<Minutiae> minutiaes = new List<Minutiae>();
+            LockBitmap originalBitmapLock = new LockBitmap(original);
+            originalBitmapLock.LockBits(ImageLockMode.ReadOnly);
+
+            for (int i = 1; i < originalBitmapLock.Width - 1; i++)
+            {
+                for (int j = 1; j < originalBitmapLock.Height - 1; j++)
+                {
+                    int pixelValue = originalBitmapLock.GetPixel(i, j).R;
+                    if (pixelValue == ColorsValues.BLACK)
+                    {
+                        int[] neighbours = {
                             originalBitmapLock.GetPixel(i - 1, j - 1).R,
+                            originalBitmapLock.GetPixel(i - 1, j).R,
+                            originalBitmapLock.GetPixel(i - 1, j + 1).R,
+                            originalBitmapLock.GetPixel(i, j + 1).R,
+                            originalBitmapLock.GetPixel(i + 1, j + 1).R,
+                            originalBitmapLock.GetPixel(i + 1, j).R,
+                            originalBitmapLock.GetPixel(i + 1, j - 1).R,
+                            originalBitmapLock.GetPixel(i, j - 1).R
                         };
 
                         int crossingNumber = 0;
@@ -254,14 +290,14 @@ namespace Biometria.Helpers
                         {
                             if (k < (neighbours.Length - 1))
                             {
-                                int firstPixel = neighbours[k] < blackColorLimit ? 1 : 0;
-                                int secondPixel = neighbours[k + 1] < blackColorLimit ? 1 : 0;
+                                int firstPixel = neighbours[k] == ColorsValues.BLACK ? 1 : 0;
+                                int secondPixel = neighbours[k + 1] == ColorsValues.BLACK ? 1 : 0;
                                 crossingNumber += Math.Abs(firstPixel - secondPixel);
                             }
                             else
                             {
-                                int firstPixel = neighbours[k] < blackColorLimit ? 1 : 0;
-                                int secondPixel = neighbours[0] < blackColorLimit ? 1 : 0;
+                                int firstPixel = neighbours[k] == ColorsValues.BLACK ? 1 : 0;
+                                int secondPixel = neighbours[0] == ColorsValues.BLACK ? 1 : 0;
                                 crossingNumber += Math.Abs(firstPixel - secondPixel);
                             }
                         }
@@ -397,9 +433,9 @@ namespace Biometria.Helpers
             return processedBmp;
         }
 
-        public static Bitmap ClipBoundaries(Bitmap original, int backgroundColor, int clippingAdditionalSpace)
+        public static Bitmap ClipBoundaries(Bitmap original, int clippingAdditionalSpace)
         {
-            Bitmap processedBitmap = AddSpaceBoundaries(original, backgroundColor, clippingAdditionalSpace);
+            Bitmap processedBitmap = AddSpaceBoundaries(original, clippingAdditionalSpace);
             LockBitmap processedBitmapLock = new LockBitmap(processedBitmap);
             processedBitmapLock.LockBits(ImageLockMode.ReadOnly);
 
@@ -409,7 +445,7 @@ namespace Biometria.Helpers
             {
                 for (int j = 0; j < processedBitmapLock.Height; j++)
                 {
-                    if (processedBitmapLock.GetPixel(i, j).R < backgroundColor)
+                    if (processedBitmapLock.GetPixel(i, j).R == ColorsValues.BLACK)
                     {
                         if (i < minPosX) minPosX = i;
                         if (j < minPosY) minPosY = j;
@@ -441,7 +477,7 @@ namespace Biometria.Helpers
             return clippedBitmap;
         }
 
-        public static Bitmap AddSpaceBoundaries(Bitmap original, int backgroundColor, int spaceSize)
+        public static Bitmap AddSpaceBoundaries(Bitmap original, int spaceSize)
         {
             Bitmap processedBmp = null;
 
@@ -452,7 +488,7 @@ namespace Biometria.Helpers
             bool topNeedsSpace = false;
             for (int i = 0; i < originalBitmapLock.Width; i++)
             {
-                if (originalBitmapLock.GetPixel(i, 0).R < backgroundColor)
+                if (originalBitmapLock.GetPixel(i, 0).R == ColorsValues.BLACK)
                     topNeedsSpace = true;
             }
 
@@ -460,7 +496,7 @@ namespace Biometria.Helpers
             bool bottomNeedsSpace = false;
             for (int i = 0; i < originalBitmapLock.Width; i++)
             {
-                if (originalBitmapLock.GetPixel(i, originalBitmapLock.Height - 1).R < backgroundColor)
+                if (originalBitmapLock.GetPixel(i, originalBitmapLock.Height - 1).R == ColorsValues.BLACK)
                     bottomNeedsSpace = true;
             }
 
@@ -468,7 +504,7 @@ namespace Biometria.Helpers
             bool leftNeedsSpace = false;
             for (int i = 0; i < originalBitmapLock.Height; i++)
             {
-                if (originalBitmapLock.GetPixel(0, i).R < backgroundColor)
+                if (originalBitmapLock.GetPixel(0, i).R == ColorsValues.BLACK)
                     leftNeedsSpace = true;
             }
 
@@ -476,7 +512,7 @@ namespace Biometria.Helpers
             bool rightNeedsSpace = false;
             for (int i = 0; i < originalBitmapLock.Height; i++)
             {
-                if (originalBitmapLock.GetPixel(originalBitmapLock.Width - 1, i).R < backgroundColor)
+                if (originalBitmapLock.GetPixel(originalBitmapLock.Width - 1, i).R == ColorsValues.BLACK)
                     rightNeedsSpace = true;
             }
 
@@ -554,9 +590,7 @@ namespace Biometria.Helpers
                 for (int j = 0; j < original.Height; j++)
                 {
                     int x, y;
-                    List<int> R = new List<int>();
-                    List<int> G = new List<int>();
-                    List<int> B = new List<int>();
+                    List<int> values = new List<int>();
                     for (int n = -midIndex; n <= midIndex; n++)
                     {
                         x = i + n;
@@ -569,16 +603,12 @@ namespace Biometria.Helpers
                                 y = 0;
                             if (y >= originalBitmapLock.Height)
                                 y = originalBitmapLock.Height - 1;
-                            R.Add(originalBitmapLock.GetPixel(x, y).R);
-                            G.Add(originalBitmapLock.GetPixel(x, y).G);
-                            B.Add(originalBitmapLock.GetPixel(x, y).B);
+                            values.Add(originalBitmapLock.GetPixel(x, y).R);
                         }
                     }
                     int midleListIndex = (MaskSize * MaskSize) / 2;
-                    R.Sort();
-                    G.Sort();
-                    B.Sort();
-                    processedBitmapLock.SetPixel(i, j, Color.FromArgb(originalBitmapLock.GetPixel(i, j).A, R[midleListIndex], G[midleListIndex], B[midleListIndex]));
+                    values.Sort();
+                    processedBitmapLock.SetPixel(i, j, Color.FromArgb(originalBitmapLock.GetPixel(i, j).A, values[midleListIndex], values[midleListIndex], values[midleListIndex]));
                 }
 
             originalBitmapLock.UnlockBits();
