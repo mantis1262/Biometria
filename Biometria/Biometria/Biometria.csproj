@@ -55,6 +55,7 @@
     </Compile>
     <Compile Include="Helpers\Effect.cs" />
     <Compile Include="Helpers\LockBitmap.cs" />
+    <Compile Include="Helpers\Neighbours.cs" />
     <Compile Include="Helpers\Otsu.cs" />
     <Compile Include="Helpers\Path.cs" />
     <Compile Include="Models\ColorsValues.cs" />
