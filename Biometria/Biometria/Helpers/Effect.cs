@@ -261,7 +261,7 @@ namespace Biometria.Helpers
             return processedBmp;
         }
         
-        public static MinutiaesResult ExtractMinutiaes(Bitmap original, int offsetFromImageBorders, int offsetFromCenter)
+        public static MinutiaesResult ExtractMinutiaes(Bitmap original, int offsetFromImageBorders, int offsetFromCenter, int circleRadius)
         {
             List<Minutiae> minutiaes = new List<Minutiae>();
             LockBitmap originalBitmapLock = new LockBitmap(original);
@@ -306,8 +306,8 @@ namespace Biometria.Helpers
 
                         if (crossingNumber == 1 || crossingNumber == 3)
                         {
-                            float orientationAngle = (float)(Math.Atan(j / i)*180);
-                            Minutiae minutiae = new Minutiae(i, j, orientationAngle, crossingNumber);
+                            Minutiae minutiae = new Minutiae(i, j, crossingNumber);
+                            CalculateMinutiaeDirectionAngle(originalBitmapLock, minutiae);
                             minutiaes.Add(minutiae);
                         }
                     }
@@ -346,6 +346,104 @@ namespace Biometria.Helpers
             //limitedMinutiaes = RemoveFalseMinutiaes(original, limitedMinutiaes);
 
             return new MinutiaesResult(centerPosX, centerPosY, limitedMinutiaes);
+        }
+
+        public static void CalculateMinutiaeDirectionAngle(LockBitmap lockBitmap, Minutiae minutiae)
+        {
+            int posX = minutiae.X;
+            int posY = minutiae.Y;
+
+            int[,] neighboursPos = Neighbours.NeighboursPositions(posX, posY);
+            int[] neighboursColors = Neighbours.NeighboursColors(lockBitmap, neighboursPos);
+
+            int secondPointPosX = -2;
+            int secondPointPosY = -2;
+            bool foundSecondPoint = false;
+
+            if (minutiae.CrossingNumber == 1)
+            {
+                for (int k = 0; k < neighboursColors.Length && !foundSecondPoint; k++)
+                {
+                    int pixel = neighboursColors[k] == ColorsValues.BLACK ? 1 : 0;
+                    
+                    if (pixel == 1)
+                    {
+                        foundSecondPoint = true;
+                        secondPointPosX = neighboursPos[k, 0];
+                        secondPointPosY = neighboursPos[k, 1];
+                    }
+                }
+            }
+            else
+            if (minutiae.CrossingNumber == 3)
+            {
+                for (int k = 0; k < neighboursColors.Length && !foundSecondPoint; k++)
+                {
+                    int pixel = neighboursColors[k] == ColorsValues.BLACK ? 1 : 0;
+                    int leftNeighbour, rightNeighbour;
+
+                    if (pixel == 0)
+                    {
+                        if (k == 0)
+                        {
+                            leftNeighbour = neighboursColors[neighboursColors.Length - 1];
+                            rightNeighbour = neighboursColors[k + 1];
+                        }
+                        else
+                        {
+                            if (k == (neighboursColors.Length - 1))
+                            {
+                                leftNeighbour = neighboursColors[k - 1];
+                                rightNeighbour = neighboursColors[0];
+                            }
+                            else
+                            {
+                                leftNeighbour = neighboursColors[k - 1];
+                                rightNeighbour = neighboursColors[k + 1];
+                            }
+                        }
+
+                        if (leftNeighbour == 0 && rightNeighbour == 0)
+                        {
+                            foundSecondPoint = true;
+                            secondPointPosX = neighboursPos[k, 0];
+                            secondPointPosY = neighboursPos[k, 1];
+                        }
+                    }
+                }
+            }
+
+            if (foundSecondPoint)
+            {
+                minutiae.DirectionX = posX - secondPointPosX;
+                minutiae.DirectionY = posY - secondPointPosY;
+                float angleRadians = VectorsAngle(1, 0, minutiae.DirectionX, minutiae.DirectionY);
+                float angleDegrees = ConvertToDegrees(angleRadians);
+                minutiae.OrientationAngle = angleDegrees >= 0 ? angleDegrees : (360 + angleDegrees);
+                return;
+            }
+            else
+                throw new Exception("Minutiae is broken. Counld not find direction.");
+        }
+
+        public static float ConvertToRadians(float degrees)
+        {
+            return (float)((Math.PI / 180.0) * degrees);
+        }
+
+        public static float ConvertToDegrees(float radians)
+        {
+            return (float)((180.0 / Math.PI) * radians);
+        }
+
+        public static float VectorsAngle(int x1, int y1, int x2, int y2)
+        {
+            //dot product
+            int dot = x1 * x2 + y1 * y2;
+            //determinant
+            int det = x1 * y2 - y1 * x2;
+
+            return (float)Math.Atan2(det, dot);
         }
 
         public static List<Minutiae> RemoveMinutiaesNearBorders(List<Minutiae> minutiaes, int imageWidth, int imageHeight, int offsetFromImageBorders)
@@ -401,24 +499,37 @@ namespace Biometria.Helpers
         public static Bitmap MarkMinutiaes(Bitmap original, MinutiaesResult minutiaesResult)
         {
             Bitmap processedBmp = new Bitmap(original);
-            float circleWidth = 2;
+            float shapeWidth = 2;
 
             // Center - purple
             // Termination - red (crossing number = 1)
             // Bifurcation - blue (crossing number = 3)
-            foreach (Minutiae minutiae in minutiaesResult.Minutiaes)
+
+            using (Graphics grf = Graphics.FromImage(processedBmp))
             {
-                using (Graphics grf = Graphics.FromImage(processedBmp))
+                foreach (Minutiae minutiae in minutiaesResult.Minutiaes)
                 {
-                    Color color = minutiae.CrossingNumber == 1 ? Color.Red : 
-                        minutiae.CrossingNumber == 3 ? Color.Blue : Color.Yellow;
-                    using (Pen penRed = new Pen(color, 1.2f))
-                    {
-                        int posX = minutiae.X - (int)circleWidth;
-                        int posY = minutiae.Y - (int)circleWidth;
-                        grf.DrawEllipse(penRed, new RectangleF(posX, posY, circleWidth, circleWidth));
+                    Color color = minutiae.CrossingNumber == 1 ? Color.Red :
+                    minutiae.CrossingNumber == 3 ? Color.Blue : Color.Yellow;
+                    int shapeType = minutiae.CrossingNumber == 1 ? 0 : 1;
+                    int posX = minutiae.X - (int)shapeWidth;
+                    int posY = minutiae.Y - (int)shapeWidth;
+
+                    using (Pen pen = new Pen(color, 1.0f))
+                    { 
+                        if (shapeType == 0)
+                        {
+                            grf.DrawEllipse(pen, posX, posY, shapeWidth, shapeWidth);
+                        }
+                        else
+                        {
+                            grf.DrawRectangle(pen, posX, posY, shapeWidth, shapeWidth);
+                        }
+
+                        grf.DrawLine(pen, (float)posX, (float)posY, (float)(posX + minutiae.DirectionX * shapeWidth), (float)(posY + minutiae.DirectionY * shapeWidth));
+
                     }
-                }
+                }  
             }
 
             using (Graphics grf = Graphics.FromImage(processedBmp))
