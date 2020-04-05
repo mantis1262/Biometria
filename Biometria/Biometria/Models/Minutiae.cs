@@ -32,6 +32,14 @@ namespace Biometria.Models
             _crossingNumber = crossingNumber;
         }
 
+        public Minutiae(int x, int y, float orientationAngle, int crossingNumber)
+        {
+            _x = x;
+            _y = y;
+            _orientationAngle = orientationAngle;
+            _crossingNumber = crossingNumber;
+        }
+
         public int X { get => _x; set => _x = value; }
 
         public int Y { get => _y; set => _y = value; }
@@ -49,6 +57,15 @@ namespace Biometria.Models
         public static float Distance(Minutiae m1, Minutiae m2)
         {
             return (float)Math.Sqrt(Math.Pow(m1.X - m2.X, 2) + Math.Pow(m1.Y - m2.Y, 2));
+        }
+
+        public override bool Equals(object obj)
+        {
+            Minutiae temp = (Minutiae)obj;
+            if (this.CrossingNumber == temp.CrossingNumber && this.X == temp.X && this.Y == temp.Y)
+                return true;
+            else
+                return false;
         }
     }
 }

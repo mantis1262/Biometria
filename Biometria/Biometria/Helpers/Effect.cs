@@ -306,7 +306,8 @@ namespace Biometria.Helpers
 
                         if (crossingNumber == 1 || crossingNumber == 3)
                         {
-                            Minutiae minutiae = new Minutiae(i, j, crossingNumber);
+                            float orientationAngle = (float)(Math.Atan(j / i)*180);
+                            Minutiae minutiae = new Minutiae(i, j, orientationAngle, crossingNumber);
                             minutiaes.Add(minutiae);
                         }
                     }
