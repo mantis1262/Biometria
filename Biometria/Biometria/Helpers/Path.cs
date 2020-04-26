@@ -37,5 +37,28 @@ namespace Biometria.Helpers
             }
             return path;
         }
+
+        public static string GetSoundPath()
+        {
+            string path = "";
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Title = "Browse Sound Files",
+                CheckFileExists = true,
+                CheckPathExists = true,
+                DefaultExt = "wav",
+                Filter =
+                    "WAV (*.wav)|*.wav|",
+                FilterIndex = 1,
+                RestoreDirectory = true
+            };
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                path = openFileDialog.FileName;
+            }
+            return path;
+        }
+
+
     }
 }
