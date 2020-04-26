@@ -39,8 +39,6 @@
             // 
             chartArea1.AxisX.IsLabelAutoFit = false;
             chartArea1.AxisX.ScaleBreakStyle.Enabled = true;
-            chartArea1.AxisX.ScaleView.MinSize = 100D;
-            chartArea1.AxisX.ScaleView.Size = 1000D;
             chartArea1.CursorX.AutoScroll = false;
             chartArea1.CursorX.IsUserEnabled = true;
             chartArea1.Name = "ChartArea1";

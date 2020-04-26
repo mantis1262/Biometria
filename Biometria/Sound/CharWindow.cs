@@ -27,7 +27,7 @@ namespace Sound
             Histogram.Series.Add("Value");
             Histogram.Series["Value"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastLine;
             for (int i = 0; i < left.Count(); i++)
-                Histogram.Series["Value"].Points.AddXY(i, Math.Sin(left[i]));
+                Histogram.Series["Value"].Points.AddXY(i/16000.0f, Math.Sin(left[i]));
         }
     }
 }

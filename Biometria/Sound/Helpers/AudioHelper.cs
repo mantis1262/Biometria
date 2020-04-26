@@ -11,21 +11,9 @@ namespace Sound.Helpers
     {
 
         
-        // Constants for default or base format [16bit 8kHz Mono]
         private const short CHNL = 1;
         private const int SMPL_RATE = 16000;
         private const int BIT_PER_SMPL = 16;
-        private const short FILTER_FREQ_LOW = -10000;
-        private const short FILTER_FREQ_HIGH = 10000;
-
-        // Public Fields can be used for various operations
-        public int Length;
-        public short Channels;
-        public int SampleRate;
-        public int DataLength;
-        public short BitsPerSample;
-        public ushort MaxAudioLevel;
-        //--------------------------------
 
 
         // convert two bytes to one double in the range -1 to 1
