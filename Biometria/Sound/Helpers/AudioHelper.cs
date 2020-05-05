@@ -27,18 +27,30 @@ namespace Sound.Helpers
         }
 
         // Returns left and right double arrays. 'right' will be null if sound is mono.
-        public double[] openWav(string filename, out short[] sampleBuffer)
+        public Tuple<double[],int,TimeSpan> openWav(string filename, out short[] sampleBuffer)
         {
-
+            int sampleRate = 0;
+            TimeSpan time = new TimeSpan();
             using (WaveFileReader reader = new WaveFileReader(filename))
             {
+                sampleRate = reader.WaveFormat.SampleRate;
+                time = reader.TotalTime;
                 byte[] buffer = new byte[reader.Length];
                 int read = reader.Read(buffer, 0, buffer.Length);
                 sampleBuffer = new short[read/2];
                 Buffer.BlockCopy(buffer, 0, sampleBuffer, 0, read);
             }
 
-            return dft(sampleBuffer);
+            //   return dft(sampleBuffer);
+            double[] result = new double[sampleBuffer.Length];
+            int i = 0;
+            foreach (short tmp in sampleBuffer)
+            {
+                result[i] = sampleBuffer[i];
+                i++;
+            }
+            // result = dft(sampleBuffer);
+            return new Tuple<double[],int,TimeSpan>( result,sampleRate,time);
         }
 
         public double[] dft(short[] data)

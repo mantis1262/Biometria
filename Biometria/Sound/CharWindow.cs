@@ -22,12 +22,27 @@ namespace Sound
         {
             AudioHelper audioHelper = new AudioHelper();
             short[] left;
-            double[] result = audioHelper.openWav(Path.GetSoundPath(), out left); 
+
+            Tuple<double[], int,TimeSpan> wave = audioHelper.openWav(Path.GetSoundPath(), out left);
+            double[] result = wave.Item1;
+            double sampleRate = Convert.ToDouble(wave.Item2);
+            int seconds = wave.Item3.Seconds;
             Histogram.Series.Clear();
             Histogram.Series.Add("Value");
             Histogram.Series["Value"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastLine;
+            Histogram.Series["Value"].MarkerSize = 2;
+
+            Histogram.ChartAreas[0].AxisX.Maximum = seconds;
+           
+
             for (int i = 0; i < result.Count(); i++)
-                Histogram.Series["Value"].Points.AddXY(i/16000.0f, left[i]);
+            {
+                Histogram.Series["Value"].Points.AddXY(i / sampleRate, result[i] / sampleRate);
+              
+            }
+
+            Histogram.ChartAreas[0].AxisY.Maximum = 1;
+            Histogram.ChartAreas[0].AxisY.Minimum = -1;
         }
     }
 }
