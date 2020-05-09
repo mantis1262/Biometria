@@ -21,9 +21,10 @@ namespace Sound
         private void button1_Click(object sender, EventArgs e)
         {
             AudioHelper audioHelper = new AudioHelper();
+
             short[] left;
 
-            Tuple<double[], int,TimeSpan> wave = audioHelper.openWav(Path.GetSoundPath(), out left);
+            Tuple<double[], int, TimeSpan> wave = audioHelper.openWav(Path.GetSoundPath(), out left);
             double[] result = wave.Item1;
             double sampleRate = Convert.ToDouble(wave.Item2);
             int seconds = wave.Item3.Seconds;
@@ -33,16 +34,40 @@ namespace Sound
             Histogram.Series["Value"].MarkerSize = 2;
 
             Histogram.ChartAreas[0].AxisX.Maximum = seconds;
-           
+            Histogram.ChartAreas[0].AxisY.Maximum = 0.5;
+            Histogram.ChartAreas[0].AxisY.Minimum = -0.5;
 
-            for (int i = 0; i < result.Count(); i++)
+            double[] time = new double[result.Length];
+            double[] value = new double[result.Length];
+
+            for (int i = 0; i < result.Count()/2; i++)
             {
                 Histogram.Series["Value"].Points.AddXY(i / sampleRate, result[i] / sampleRate);
-              
+                value[i] = result[i] / sampleRate;
+                time[i] = i / sampleRate;
             }
 
-            Histogram.ChartAreas[0].AxisY.Maximum = 1;
-            Histogram.ChartAreas[0].AxisY.Minimum = -1;
+            /// badanie częstotliwości
+            int licz = 0;
+            double[] times = new double[2];
+            for (int i = 0; i < result.Count(); i++)
+            {
+                if(value[i] >0 && value[i+1] <0)
+                {
+                    times[licz] = time[i];
+                    licz++;
+                }
+                if (licz == 2)
+                {
+                    break ;
+                }
+            }
+
+            double okres = times[1] - times[0];
+            double f = 1 / okres;
+
+            double df = sampleRate / result.Length/2;
+
         }
     }
 }

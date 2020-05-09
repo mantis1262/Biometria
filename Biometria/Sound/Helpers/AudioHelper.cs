@@ -35,13 +35,14 @@ namespace Sound.Helpers
             {
                 sampleRate = reader.WaveFormat.SampleRate;
                 time = reader.TotalTime;
+               
                 byte[] buffer = new byte[reader.Length];
                 int read = reader.Read(buffer, 0, buffer.Length);
                 sampleBuffer = new short[read/2];
                 Buffer.BlockCopy(buffer, 0, sampleBuffer, 0, read);
             }
 
-            //   return dft(sampleBuffer);
+            
             double[] result = new double[sampleBuffer.Length];
             int i = 0;
             foreach (short tmp in sampleBuffer)
@@ -49,7 +50,7 @@ namespace Sound.Helpers
                 result[i] = sampleBuffer[i];
                 i++;
             }
-            // result = dft(sampleBuffer);
+            result = dft(sampleBuffer);
             return new Tuple<double[],int,TimeSpan>( result,sampleRate,time);
         }
 
@@ -69,7 +70,7 @@ namespace Sound.Helpers
                     real[w] += data[t] * Math.Cos(a * t);
                     imag[w] += data[t] * Math.Sin(a * t);
                 }
-                result[w] = Math.Sqrt(real[w] * real[w] + imag[w] * imag[w]) / n;
+                result[w] = 2* Math.Sqrt(real[w] * real[w] + imag[w] * imag[w]) / n;
             }
             return result;
         }
