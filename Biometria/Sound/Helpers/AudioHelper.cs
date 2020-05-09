@@ -1,4 +1,4 @@
-﻿using NAudio.Wave;
+using NAudio.Wave;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -27,7 +27,7 @@ namespace Sound.Helpers
         }
 
         // Returns left and right double arrays. 'right' will be null if sound is mono.
-        public Tuple<double[],int,TimeSpan> openWav(string filename, out short[] sampleBuffer)
+        public Tuple<double[], int, TimeSpan> openWav(string filename, out short[] sampleBuffer)
         {
             int sampleRate = 0;
             TimeSpan time = new TimeSpan();
@@ -35,14 +35,14 @@ namespace Sound.Helpers
             {
                 sampleRate = reader.WaveFormat.SampleRate;
                 time = reader.TotalTime;
-               
+
                 byte[] buffer = new byte[reader.Length];
                 int read = reader.Read(buffer, 0, buffer.Length);
-                sampleBuffer = new short[read/2];
+                sampleBuffer = new short[read / 2];
                 Buffer.BlockCopy(buffer, 0, sampleBuffer, 0, read);
             }
 
-            
+
             double[] result = new double[sampleBuffer.Length];
             int i = 0;
             foreach (short tmp in sampleBuffer)
@@ -52,6 +52,17 @@ namespace Sound.Helpers
             }
             result = dft(sampleBuffer);
             return new Tuple<double[],int,TimeSpan>( result,sampleRate,time);
+        }
+
+
+        public double[] TriangleWindow(double[] data)
+        {
+            double[] result = new double[data.Length];
+            for(int i = 0; i<data.Length; i++)
+            {
+                result[i] = data[i] * (1 - (i * 1.0) / data.Length);
+            }
+            return result;
         }
 
         public double[] dft(short[] data)

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using NAudio.Dsp;
 using Sound.Helpers;
 
 namespace Sound
@@ -26,6 +27,7 @@ namespace Sound
 
             Tuple<double[], int, TimeSpan> wave = audioHelper.openWav(Path.GetSoundPath(), out left);
             double[] result = wave.Item1;
+            //result = audioHelper.TriangleWindow(result);
             double sampleRate = Convert.ToDouble(wave.Item2);
             int seconds = wave.Item3.Seconds;
             Histogram.Series.Clear();
@@ -40,12 +42,14 @@ namespace Sound
             double[] time = new double[result.Length];
             double[] value = new double[result.Length];
 
-            for (int i = 0; i < result.Count()/2; i++)
+            for (int i = 0; i < result.Count(); i++)
             {
                 Histogram.Series["Value"].Points.AddXY(i / sampleRate, result[i] / sampleRate);
                 value[i] = result[i] / sampleRate;
                 time[i] = i / sampleRate;
             }
+
+            ;
 
             /// badanie częstotliwości
             int licz = 0;
@@ -65,7 +69,6 @@ namespace Sound
 
             double okres = times[1] - times[0];
             double f = 1 / okres;
-
             double df = sampleRate / result.Length/2;
 
         }
