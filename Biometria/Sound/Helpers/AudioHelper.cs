@@ -50,8 +50,8 @@ namespace Sound.Helpers
                 result[i] = sampleBuffer[i];
                 i++;
             }
-            result = dft(sampleBuffer);
-            return new Tuple<double[],int,TimeSpan>( result,sampleRate,time);
+            // result = dft(sampleBuffer);
+            return new Tuple<double[], int, TimeSpan>(result, sampleRate, time);
         }
 
 
