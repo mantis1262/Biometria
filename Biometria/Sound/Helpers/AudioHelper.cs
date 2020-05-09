@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NAudio.Wave;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -26,46 +27,36 @@ namespace Sound.Helpers
         }
 
         // Returns left and right double arrays. 'right' will be null if sound is mono.
-        public void openWav(string filename, out double[] left)
+        public Tuple<double[],int,TimeSpan> openWav(string filename, out short[] sampleBuffer)
         {
-            byte[] wav = File.ReadAllBytes(filename);
-
-            // Get past all the other sub chunks to get to the data subchunk:
-            int pos = 12;   // First Subchunk ID from 12 to 16
-
-            // Keep iterating until we find the data chunk (i.e. 64 61 74 61 ...... (i.e. 100 97 116 97 in decimal))
-            while (!(wav[pos] == 100 && wav[pos + 1] == 97 && wav[pos + 2] == 116 && wav[pos + 3] == 97))
+            int sampleRate = 0;
+            TimeSpan time = new TimeSpan();
+            using (WaveFileReader reader = new WaveFileReader(filename))
             {
-                pos += 4;
-                int chunkSize = wav[pos] + wav[pos + 1] * 256 + wav[pos + 2] * 65536 + wav[pos + 3] * 16777216;
-                pos += 4 + chunkSize;
+                sampleRate = reader.WaveFormat.SampleRate;
+                time = reader.TotalTime;
+                byte[] buffer = new byte[reader.Length];
+                int read = reader.Read(buffer, 0, buffer.Length);
+                sampleBuffer = new short[read/2];
+                Buffer.BlockCopy(buffer, 0, sampleBuffer, 0, read);
             }
-            pos += 8;
 
-            // Pos is now positioned to start of actual sound data.
-            int samples = (wav.Length - pos) / 2;     // 2 bytes per sample (16 bit sound mono)
-
-            // Allocate memory (right will be null if only mono sound)
-            left = new double[samples];
-
-
-            // Write to double array/s:
+            //   return dft(sampleBuffer);
+            double[] result = new double[sampleBuffer.Length];
             int i = 0;
-            while (pos < wav.Length)
+            foreach (short tmp in sampleBuffer)
             {
-                left[i] = bytesToDouble(wav[pos], wav[pos + 1]);
-                left[i] -= 1;
-                pos += 2;
+                result[i] = sampleBuffer[i];
                 i++;
             }
-
-           left = dft(left);
+            // result = dft(sampleBuffer);
+            return new Tuple<double[],int,TimeSpan>( result,sampleRate,time);
         }
 
-        public double[] dft(double[] data)
+        public double[] dft(short[] data)
         {
             int n = data.Length;
-            int m = n;// I use m = n / 2d;
+            int m = n;
             double[] real = new double[n];
             double[] imag = new double[n];
             double[] result = new double[m];

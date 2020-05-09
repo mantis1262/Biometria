@@ -21,13 +21,28 @@ namespace Sound
         private void button1_Click(object sender, EventArgs e)
         {
             AudioHelper audioHelper = new AudioHelper();
-            double[] left;
-            audioHelper.openWav(Path.GetSoundPath(), out left); 
+            short[] left;
+
+            Tuple<double[], int,TimeSpan> wave = audioHelper.openWav(Path.GetSoundPath(), out left);
+            double[] result = wave.Item1;
+            double sampleRate = Convert.ToDouble(wave.Item2);
+            int seconds = wave.Item3.Seconds;
             Histogram.Series.Clear();
             Histogram.Series.Add("Value");
             Histogram.Series["Value"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastLine;
-            for (int i = 0; i < left.Count(); i++)
-                Histogram.Series["Value"].Points.AddXY(i/16000.0f, Math.Sin(left[i]));
+            Histogram.Series["Value"].MarkerSize = 2;
+
+            Histogram.ChartAreas[0].AxisX.Maximum = seconds;
+           
+
+            for (int i = 0; i < result.Count(); i++)
+            {
+                Histogram.Series["Value"].Points.AddXY(i / sampleRate, result[i] / sampleRate);
+              
+            }
+
+            Histogram.ChartAreas[0].AxisY.Maximum = 1;
+            Histogram.ChartAreas[0].AxisY.Minimum = -1;
         }
     }
 }
