@@ -6,20 +6,19 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Sound.Helpers
 {
     class AudioHelper
     {
+        int sampleRate = 0;
 
-
-        private const short CHNL = 1;
-        private const int SMPL_RATE = 16000;
-        private const int BIT_PER_SMPL = 16;
+        private const int K = 30;
+        private const int Dis = 100;
 
         public Tuple<double[], int, TimeSpan> openWav(string filename, out short[] sampleBuffer)
         {
-            int sampleRate = 0;
             TimeSpan time = new TimeSpan();
             using (WaveFileReader reader = new WaveFileReader(filename))
             {
@@ -32,7 +31,7 @@ namespace Sound.Helpers
                 Buffer.BlockCopy(buffer, 0, sampleBuffer, 0, read);
             }
 
-            int WinodwSize = 65536;
+            int WinodwSize = 1024;
             double[] result = new double[WinodwSize];
             int i = 0;
             foreach (short tmp in sampleBuffer)
@@ -55,6 +54,8 @@ namespace Sound.Helpers
             {
                 result[z] =2 * Modulus(resultComplex[z].Real, resultComplex[z].Imaginary)/result.Length;
             }
+
+            Filter(result);
 
             return new Tuple<double[], int, TimeSpan>(result, sampleRate, time);
         }
@@ -146,13 +147,30 @@ namespace Sound.Helpers
                 return buffer;
         }
 
-        public double[] Filter(double[] data, double f, int K)
+        public double[][] Filter(double[] data)
         {
-            double[] result = new double[data.Length];
-            for (int k=1; k<=K; k++)
+            double[][] result = new double[data.Length][];
+            for (int i = 0; i<data.Length; i++)
             {
-               // double ck = ck(k,)
-          //      if(f)
+                result[i] = new double[K];
+            }
+            for(int k=0; k<K;k++)
+            {
+                double ck = Ck(k + 1);
+                double lk = Ck(k);
+                double rk = Ck(k + 2);
+                {
+                    for(int i = 0; i< data.Length; i++)
+                    {
+                        double freq = i * (sampleRate * 1.0) / data.Length;
+                        if (lk < freq && freq < ck)
+                            result[i][k] = (freq - lk) / (ck - lk);
+                        else if (ck < freq && freq < rk)
+                            result[i][k] = (rk - freq) / (rk - ck);
+                        else
+                            result[i][k] = 0;
+                    }
+                }
             }
             return result;
         }
@@ -162,9 +180,9 @@ namespace Sound.Helpers
             return 700 * (Math.Pow(10, m / 2595) - 1); ;
         }
 
-        private double Ck(double k, double d)
+        private double Ck(double k)
         {
-            return Ni(k * d);
+            return Ni(k * Dis);
         }
 
         private static double Modulus(double real, double imaginary)
