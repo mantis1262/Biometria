@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -54,8 +55,6 @@ namespace Sound.Helpers
             {
                 result[z] =2 * Modulus(resultComplex[z].Real, resultComplex[z].Imaginary)/result.Length;
             }
-
-            Filter(result);
 
             return new Tuple<double[], int, TimeSpan>(result, sampleRate, time);
         }
@@ -147,10 +146,10 @@ namespace Sound.Helpers
                 return buffer;
         }
 
-        public double[][] Filter(double[] data)
+        public double[][] Filter(int size)
         {
-            double[][] result = new double[data.Length][];
-            for (int i = 0; i<data.Length; i++)
+            double[][] result = new double[size][];
+            for (int i = 0; i< size; i++)
             {
                 result[i] = new double[K];
             }
@@ -159,18 +158,33 @@ namespace Sound.Helpers
                 double ck = Ck(k + 1);
                 double lk = Ck(k);
                 double rk = Ck(k + 2);
+
+                for(int i = 0; i< size; i++)
                 {
-                    for(int i = 0; i< data.Length; i++)
-                    {
-                        double freq = i * (sampleRate * 1.0) / data.Length;
-                        if (lk < freq && freq < ck)
-                            result[i][k] = (freq - lk) / (ck - lk);
-                        else if (ck < freq && freq < rk)
-                            result[i][k] = (rk - freq) / (rk - ck);
-                        else
-                            result[i][k] = 0;
-                    }
+                    double freq = i * (sampleRate * 1.0) / size;
+                    if (lk < freq && freq < ck)
+                        result[i][k] = (freq - lk) / (ck - lk);
+                    else if (ck < freq && freq < rk)
+                        result[i][k] = (rk - freq) / (rk - ck);
+                    else
+                        result[i][k] = 0;
                 }
+            }
+            return result;
+        }
+
+
+        public double[] FitrSum(double[][] filterValue, double[] data)
+        {
+            double[] result = new double[K];
+            for (int k = 0; k < K; k++)
+            {
+                result[k] = 0;
+                for (int i = 0; i < data.Length/2; i++)
+                {
+                    result[k] += data[i] * filterValue[i][k] * (sampleRate * 1.0 / data.Length) * i;
+                }
+
             }
             return result;
         }
