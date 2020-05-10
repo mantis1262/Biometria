@@ -36,9 +36,9 @@ namespace Sound
             Histogram.Series["Value"].MarkerSize = 2;
 
             //Histogram.ChartAreas[0].AxisX.Maximum = seconds;
-          //  Histogram.ChartAreas[0].AxisX.Minimum = 0;
-           // Histogram.ChartAreas[0].AxisY.Maximum = 0.1;
-           // Histogram.ChartAreas[0].AxisY.Minimum = -0.1;
+            //  Histogram.ChartAreas[0].AxisX.Minimum = 0;
+            // Histogram.ChartAreas[0].AxisY.Maximum = 0.1;
+            // Histogram.ChartAreas[0].AxisY.Minimum = -0.1;
 
             double[] time = new double[result.Length];
             double[] value = new double[result.Length];
@@ -49,7 +49,12 @@ namespace Sound
                 value[i] = result[i] / sampleRate;
                 time[i] = i / sampleRate;
                 freq[i] = i * sampleRate / result.Length;
-                Histogram.Series["Value"].Points.AddXY(time[i], value[i]);
+                Histogram.Series["Value"].Points.AddXY(freq[i], value[i]);
+
+                if (value[i] > 0.008)
+                {
+                    double tmp = freq[i];
+                }
             }
 
             ;
@@ -57,22 +62,22 @@ namespace Sound
             /// badanie częstotliwości
             int licz = 0;
             double[] times = new double[2];
-            for (int i = 0; i < result.Count()-1; i++)
+            for (int i = 0; i < result.Count() - 1; i++)
             {
-                if(value[i] >0 && value[i+1] <0)
+                if (value[i] > 0 && value[i + 1] < 0)
                 {
                     times[licz] = time[i];
                     licz++;
                 }
                 if (licz == 2)
                 {
-                    break ;
+                    break;
                 }
             }
 
             double okres = times[1] - times[0];
             double f = 1 / okres;
-            double df = sampleRate / result.Length/2;
+            double df = sampleRate / result.Length / 2;
 
         }
     }
