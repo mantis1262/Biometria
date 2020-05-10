@@ -36,15 +36,16 @@ namespace Sound
             Histogram.Series["Value"].MarkerSize = 2;
 
             Histogram.ChartAreas[0].AxisX.Maximum = seconds;
-            Histogram.ChartAreas[0].AxisY.Maximum = 0.5;
-            Histogram.ChartAreas[0].AxisY.Minimum = -0.5;
+            Histogram.ChartAreas[0].AxisX.Minimum = 0;
+            Histogram.ChartAreas[0].AxisY.Maximum = 0.1;
+            Histogram.ChartAreas[0].AxisY.Minimum = -0.1;
 
             double[] time = new double[result.Length];
             double[] value = new double[result.Length];
 
             for (int i = 0; i < result.Count(); i++)
             {
-                Histogram.Series["Value"].Points.AddXY(i / sampleRate, result[i] / sampleRate);
+                Histogram.Series["Value"].Points.AddXY( (i / sampleRate), result[i] / sampleRate);
                 value[i] = result[i] / sampleRate;
                 time[i] = i / sampleRate;
             }
@@ -54,7 +55,7 @@ namespace Sound
             /// badanie częstotliwości
             int licz = 0;
             double[] times = new double[2];
-            for (int i = 0; i < result.Count(); i++)
+            for (int i = 0; i < result.Count()-1; i++)
             {
                 if(value[i] >0 && value[i+1] <0)
                 {

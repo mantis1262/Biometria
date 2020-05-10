@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,7 +12,7 @@ namespace Sound.Helpers
     class AudioHelper
     {
 
-        
+
         private const short CHNL = 1;
         private const int SMPL_RATE = 16000;
         private const int BIT_PER_SMPL = 16;
@@ -50,7 +51,20 @@ namespace Sound.Helpers
                 result[i] = sampleBuffer[i];
                 i++;
             }
-            // result = dft(sampleBuffer);
+
+            result = TriangleWindow(result);
+            Complex[] resultComplex = new Complex[result.Length];
+            for (int z = 0; z < result.Length; z++)
+            {
+                resultComplex[z] = result[z];
+            }
+
+            resultComplex = FFT(resultComplex);
+            for (int z = 0; z < result.Length; z++)
+            {
+                result[z] =2 * Modulus(resultComplex[z].Real, resultComplex[z].Imaginary)/result.Length;
+            }
+
             return new Tuple<double[], int, TimeSpan>(result, sampleRate, time);
         }
 
@@ -58,14 +72,14 @@ namespace Sound.Helpers
         public double[] TriangleWindow(double[] data)
         {
             double[] result = new double[data.Length];
-            for(int i = 0; i<data.Length; i++)
+            for (int i = 0; i < data.Length; i++)
             {
                 result[i] = data[i] * (1 - (i * 1.0) / data.Length);
             }
             return result;
         }
 
-        public double[] dft(short[] data)
+        public double[] dft(double[] data)
         {
             int n = data.Length;
             int m = n;
@@ -81,10 +95,89 @@ namespace Sound.Helpers
                     real[w] += data[t] * Math.Cos(a * t);
                     imag[w] += data[t] * Math.Sin(a * t);
                 }
-                result[w] = 2* Math.Sqrt(real[w] * real[w] + imag[w] * imag[w]) / n;
+                result[w] = 2 * Math.Sqrt(real[w] * real[w] + imag[w] * imag[w]) / n;
             }
             return result;
         }
 
-    } 
+
+        public static int BitReverse(int n, int bits)
+        {
+            int reversedN = n;
+            int count = bits - 1;
+
+            n >>= 1;
+            while (n > 0)
+            {
+                reversedN = (reversedN << 1) | (n & 1);
+                count--;
+                n >>= 1;
+            }
+
+            return ((reversedN << count) & ((1 << bits) - 1));
+        }
+
+        public static Complex[] FFT(Complex[] buffer)
+        {
+
+            int bits = (int)Math.Log(buffer.Length, 2);
+            for (int j = 1; j < buffer.Length; j++)
+            {
+                int swapPos = BitReverse(j, bits);
+                if (swapPos <= j)
+                {
+                    continue;
+                }
+                var temp = buffer[j];
+                buffer[j] = buffer[swapPos];
+                buffer[swapPos] = temp;
+            }
+
+
+
+
+            for (int N = 2; N <= buffer.Length; N <<= 1)
+            {
+                for (int i = 0; i < buffer.Length; i += N)
+                {
+                    for (int k = 0; k < N / 2; k++)
+                    {
+
+                        int evenIndex = i + k;
+                        int oddIndex = i + k + (N / 2);
+
+
+                        Complex even = 0.0;
+
+                        Complex odd = 0.0;
+
+                        if (oddIndex < buffer.Length)
+                        {
+                            odd = buffer[oddIndex];
+                        }
+                        if (evenIndex < buffer.Length)
+                        {
+                            even = buffer[evenIndex];
+                        }
+
+                        double term = -2 * Math.PI * k / (double)N;
+                        Complex exp = new Complex(Math.Cos(term), Math.Sin(term)) * odd;
+                        if (evenIndex < buffer.Length)
+                        {
+                            buffer[evenIndex] = even + exp;
+                        }
+                        if (oddIndex < buffer.Length)
+                        {
+                            buffer[oddIndex] = even - exp;
+                        }
+                    }
+                }
+            }
+            return buffer;
+        }
+        private static double Modulus(double real, double imaginary)
+        {
+            return Math.Sqrt((real * real) + (imaginary * imaginary));
+        }
+    }
 }
