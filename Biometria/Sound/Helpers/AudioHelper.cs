@@ -151,8 +151,8 @@ namespace Sound.Helpers
             double[] result = new double[data.Length];
             for (int k=1; k<=K; k++)
             {
-                double ck = ck(k,)
-                if(f)
+               // double ck = ck(k,)
+          //      if(f)
             }
             return result;
         }
@@ -164,7 +164,7 @@ namespace Sound.Helpers
 
         private double Ck(double k, double d)
         {
-            return ni(k * d);
+            return Ni(k * d);
         }
 
         private static double Modulus(double real, double imaginary)
