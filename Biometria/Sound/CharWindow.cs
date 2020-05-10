@@ -35,19 +35,21 @@ namespace Sound
             Histogram.Series["Value"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastLine;
             Histogram.Series["Value"].MarkerSize = 2;
 
-            Histogram.ChartAreas[0].AxisX.Maximum = seconds;
-            Histogram.ChartAreas[0].AxisX.Minimum = 0;
-            Histogram.ChartAreas[0].AxisY.Maximum = 0.1;
-            Histogram.ChartAreas[0].AxisY.Minimum = -0.1;
+            //Histogram.ChartAreas[0].AxisX.Maximum = seconds;
+          //  Histogram.ChartAreas[0].AxisX.Minimum = 0;
+           // Histogram.ChartAreas[0].AxisY.Maximum = 0.1;
+           // Histogram.ChartAreas[0].AxisY.Minimum = -0.1;
 
             double[] time = new double[result.Length];
             double[] value = new double[result.Length];
+            double[] freq = new double[result.Length];
 
             for (int i = 0; i < result.Count(); i++)
             {
-                Histogram.Series["Value"].Points.AddXY( (i / sampleRate), result[i] / sampleRate);
                 value[i] = result[i] / sampleRate;
                 time[i] = i / sampleRate;
+                freq[i] = i * sampleRate / result.Length;
+                Histogram.Series["Value"].Points.AddXY(time[i], value[i]);
             }
 
             ;

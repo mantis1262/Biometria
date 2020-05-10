@@ -17,17 +17,6 @@ namespace Sound.Helpers
         private const int SMPL_RATE = 16000;
         private const int BIT_PER_SMPL = 16;
 
-
-        // convert two bytes to one double in the range -1 to 1
-        static double bytesToDouble(byte firstByte, byte secondByte)
-        {
-            // convert two bytes to one short (little endian)
-            int s = (secondByte << 8) | firstByte;
-            // convert to range from -1 to (just below) 1
-            return s / 32768.0;
-        }
-
-        // Returns left and right double arrays. 'right' will be null if sound is mono.
         public Tuple<double[], int, TimeSpan> openWav(string filename, out short[] sampleBuffer)
         {
             int sampleRate = 0;
@@ -43,13 +32,15 @@ namespace Sound.Helpers
                 Buffer.BlockCopy(buffer, 0, sampleBuffer, 0, read);
             }
 
-
-            double[] result = new double[sampleBuffer.Length];
+            int WinodwSize = 65536;
+            double[] result = new double[WinodwSize];
             int i = 0;
             foreach (short tmp in sampleBuffer)
             {
                 result[i] = sampleBuffer[i];
                 i++;
+                if (i == WinodwSize)
+                    break;
             }
 
             result = TriangleWindow(result);
@@ -78,28 +69,6 @@ namespace Sound.Helpers
             }
             return result;
         }
-
-        public double[] dft(double[] data)
-        {
-            int n = data.Length;
-            int m = n;
-            double[] real = new double[n];
-            double[] imag = new double[n];
-            double[] result = new double[m];
-            double pi_div = 2.0 * Math.PI / n;
-            for (int w = 0; w < m; w++)
-            {
-                double a = w * pi_div;
-                for (int t = 0; t < n; t++)
-                {
-                    real[w] += data[t] * Math.Cos(a * t);
-                    imag[w] += data[t] * Math.Sin(a * t);
-                }
-                result[w] = 2 * Math.Sqrt(real[w] * real[w] + imag[w] * imag[w]) / n;
-            }
-            return result;
-        }
-
 
         public static int BitReverse(int n, int bits)
         {
@@ -173,11 +142,60 @@ namespace Sound.Helpers
                     }
                 }
             }
-            return buffer;
+
+                return buffer;
         }
+
+        public double[] Filter(double[] data, double f, int K)
+        {
+            double[] result = new double[data.Length];
+            for (int k=1; k<=K; k++)
+            {
+                double ck = ck(k,)
+                if(f)
+            }
+            return result;
+        }
+
+        private double Ni(double m)
+        {
+            return 700 * (Math.Pow(10, m / 2595) - 1); ;
+        }
+
+        private double Ck(double k, double d)
+        {
+            return ni(k * d);
+        }
+
         private static double Modulus(double real, double imaginary)
         {
             return Math.Sqrt((real * real) + (imaginary * imaginary));
+        }
+
+
+        private const double LOG_2_DB = 8.6858896380650365530225783783321;
+        private const double DB_2_LOG = 0.11512925464970228420089957273422;
+
+
+        public static double LinearToDecibels(double lin)
+        {
+            return Math.Log(lin) * LOG_2_DB;
+        }
+
+        public static double DecibelsToLinear(double dB)
+        {
+            return Math.Exp(dB * DB_2_LOG);
+        }
+
+        public static double HztoMel(double hz)
+        {
+            return 2595 * Math.Log10(1 + hz / 700);
+        }
+
+
+        public static double MeltoHz(double mel)
+        {
+            return 700 * (Math.Pow(10, mel/2595) - 1);
         }
     }
 }
