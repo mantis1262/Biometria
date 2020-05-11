@@ -17,6 +17,7 @@ namespace Sound.Helpers
 
         private const int K = 30;
         private const int Dis = 100;
+        private const int F = 10;
 
         public Tuple<double[], int, TimeSpan> openWav(string filename, out short[] sampleBuffer)
         {
@@ -185,6 +186,21 @@ namespace Sound.Helpers
                     result[k] += data[i] * filterValue[i][k] * (sampleRate * 1.0 / data.Length) * i;
                 }
 
+            }
+            return result;
+        }
+
+        public double[] MFCC(double[] data)
+        {
+            double[] result = new double[F];
+
+            for (int i = 1; i <= F; i++)
+            {
+                result[i - 1] = 0;
+                for (int k = 0; k < K; k++)
+                {
+                    result[i - 1] += Math.Log(data[i]) * Math.Cos(2 * Math.PI * (((2 * k + 1) * i) / (4 * K)));
+                }
             }
             return result;
         }

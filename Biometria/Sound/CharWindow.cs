@@ -59,6 +59,7 @@ namespace Sound
 
             double[][] FilterValue =  audioHelper.Filter(value.Length);
             double[] SumFilter = audioHelper.FitrSum(FilterValue, value);
+            double[] MFCC = audioHelper.MFCC(SumFilter);
 
             CharWindow charWindow2 = new CharWindow();
             charWindow2.Histogram.Series.Clear();
@@ -66,13 +67,15 @@ namespace Sound
             charWindow2.Histogram.Series["Value"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastLine;
             charWindow2.Histogram.Series["Value"].MarkerSize = 2;
 
-            for (int i = 0; i < SumFilter.Count(); i++)
+            for (int i = 0; i < MFCC.Count(); i++)
             {
-               charWindow2.Histogram.Series["Value"].Points.AddXY(i, SumFilter[i]);
+               charWindow2.Histogram.Series["Value"].Points.AddXY(i, MFCC[i]);
             }
 
             charWindow2.button1.Visible = false;
             charWindow2.Show();
+
+
 
 
             /// badanie częstotliwości
