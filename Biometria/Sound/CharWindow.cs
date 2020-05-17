@@ -14,6 +14,8 @@ namespace Sound
 {
     public partial class CharWindow : Form
     {
+
+        const double MAXDIS = 0.3;
         public CharWindow()
         {
             InitializeComponent();
@@ -23,9 +25,9 @@ namespace Sound
         {
             AudioHelper audioHelper = new AudioHelper();
 
-            short[] left;
+            short[] sample1;
 
-            Tuple<double[], int, TimeSpan> wave = audioHelper.openWav(Path.GetSoundPath(), out left);
+            Tuple<double[], int, TimeSpan> wave = audioHelper.openWav(Path.GetSoundPath(), out sample1);
             double[] result = wave.Item1;
             //result = audioHelper.TriangleWindow(result);
             double sampleRate = Convert.ToDouble(wave.Item2);
@@ -63,42 +65,52 @@ namespace Sound
 
             CharWindow charWindow2 = new CharWindow();
             charWindow2.Histogram.Series.Clear();
-            charWindow2.Histogram.Series.Add("Value");
-            charWindow2.Histogram.Series["Value"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastLine;
-            charWindow2.Histogram.Series["Value"].MarkerSize = 2;
+            charWindow2.Histogram.Series.Add("MFCC1");
+            charWindow2.Histogram.Series["MFCC1"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastLine;
+            charWindow2.Histogram.Series["MFCC1"].MarkerSize = 2;
 
             for (int i = 0; i < MFCC.Count(); i++)
             {
-               charWindow2.Histogram.Series["Value"].Points.AddXY(i, MFCC[i]);
+                charWindow2.Histogram.Series["MFCC1"].Points.AddXY(i, MFCC[i]);
             }
 
             charWindow2.button1.Visible = false;
             charWindow2.Show();
 
+            short[] sample2;
+            Tuple<double[], int, TimeSpan> wave2 = audioHelper.openWav(Path.GetSoundPath(), out sample2);
 
+            double[] result2 = wave2.Item1;
+            double sampleRate2 = Convert.ToDouble(wave2.Item2);
 
+            double[] time2 = new double[result2.Length];
+            double[] value2 = new double[result2.Length];
+            double[] freq2 = new double[result2.Length];
 
-            /// badanie częstotliwości
-            //int licz = 0;
-            //double[] times = new double[2];
-            //for (int i = 0; i < result.Count() - 1; i++)
-            //{
-            //    if (value[i] > 0 && value[i + 1] < 0)
-            //    {
-            //        times[licz] = time[i];
-            //        licz++;
-            //    }
-            //    if (licz == 2)
-            //    {
-            //        break;
-            //    }
-            //}
+            for (int i = 0; i < result2.Count(); i++)
+            {
+                value2[i] = result2[i] / sampleRate2;
+                time2[i] = i / sampleRate2;
+                freq2[i] = i * sampleRate2 / result2.Length;
 
-            //double okres = times[1] - times[0];
-            //double f = 1 / okres;
+            }
 
-            //double df = sampleRate / result.Length / 2;
+            double[][] FilterValue2 = audioHelper.Filter(value2.Length);
+            double[] SumFilter2 = audioHelper.FitrSum(FilterValue2, value2);
+            double[] MFCC2 = audioHelper.MFCC(SumFilter2);
 
+            charWindow2.Histogram.Series.Add("MFCC2");
+            charWindow2.Histogram.Series["MFCC2"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.FastLine;
+            charWindow2.Histogram.Series["MFCC2"].MarkerSize = 2;
+
+            for (int i = 0; i < MFCC2.Count(); i++)
+            {
+                charWindow2.Histogram.Series["MFCC2"].Points.AddXY(i, MFCC2[i]);
+            }
+
+            double dis = audioHelper.euclides(MFCC, MFCC2);
+            if (dis < MAXDIS)
+                MessageBox.Show("Dopasowano.");
         }
     }
 }

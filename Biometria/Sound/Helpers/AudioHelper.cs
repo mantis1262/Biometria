@@ -17,7 +17,7 @@ namespace Sound.Helpers
 
         private const int K = 30;
         private const int Dis = 100;
-        private const int F = 10;
+        private const int F = 20;
 
         public Tuple<double[], int, TimeSpan> openWav(string filename, out short[] sampleBuffer)
         {
@@ -203,6 +203,15 @@ namespace Sound.Helpers
                 }
             }
             return result;
+        }
+
+
+        public double euclides(double[] MFCC1 , double[] MFCC2)
+        {
+            double result = 0;
+            for (int k = 0; k < F; k++)
+                result += Math.Sqrt((MFCC1[k] - MFCC2[k]) * (MFCC1[k] - MFCC2[k]));
+            return Math.Sqrt(result);
         }
 
         private double Ni(double m)
