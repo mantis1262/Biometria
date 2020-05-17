@@ -15,9 +15,11 @@ namespace Sound.Helpers
     {
         int sampleRate = 0;
 
-        private const int K = 30;
+        private const int K = 50;
         private const int Dis = 100;
-        private const int F = 20;
+        private const int F = 10;
+        private const int WinodwSize = 2048;
+
 
         public Tuple<double[], int, TimeSpan> openWav(string filename, out short[] sampleBuffer)
         {
@@ -33,7 +35,6 @@ namespace Sound.Helpers
                 Buffer.BlockCopy(buffer, 0, sampleBuffer, 0, read);
             }
 
-            int WinodwSize = 1024;
             double[] result = new double[WinodwSize];
             int i = 0;
             foreach (short tmp in sampleBuffer)

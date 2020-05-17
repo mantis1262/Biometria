@@ -15,7 +15,7 @@ namespace Sound
     public partial class CharWindow : Form
     {
 
-        const double MAXDIS = 0.3;
+        const double MAXDIS = 12.0;
         public CharWindow()
         {
             InitializeComponent();
@@ -108,7 +108,7 @@ namespace Sound
                 charWindow2.Histogram.Series["MFCC2"].Points.AddXY(i, MFCC2[i]);
             }
 
-            double dis = audioHelper.euclides(MFCC, MFCC2);
+            double dis = audioHelper.euclides(MFCC2, MFCC);
             if (dis < MAXDIS)
                 MessageBox.Show("Dopasowano.");
         }
