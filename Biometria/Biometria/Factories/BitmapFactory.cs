@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ImageSoundProcessing.Factories
+namespace Biometria.Factories
 {
     public static class BitmapFactory
     {

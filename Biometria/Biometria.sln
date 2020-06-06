@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Biometria", "Biometria\Biom
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sound", "Sound\Sound.csproj", "{6089F838-0D90-4445-B60A-59EA537BFA21}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BiometriaApp", "BiometriaApp\BiometriaApp.csproj", "{90E0A919-BEA6-427B-972A-1466B9CF144A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{6089F838-0D90-4445-B60A-59EA537BFA21}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6089F838-0D90-4445-B60A-59EA537BFA21}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6089F838-0D90-4445-B60A-59EA537BFA21}.Release|Any CPU.Build.0 = Release|Any CPU
+		{90E0A919-BEA6-427B-972A-1466B9CF144A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90E0A919-BEA6-427B-972A-1466B9CF144A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90E0A919-BEA6-427B-972A-1466B9CF144A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90E0A919-BEA6-427B-972A-1466B9CF144A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

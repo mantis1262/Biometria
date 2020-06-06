@@ -1,5 +1,4 @@
-﻿using ImageSoundProcessing.Factories;
-using Biometria.Helpers;
+﻿using Biometria.Helpers;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -12,6 +11,7 @@ using System.Windows.Forms;
 using Biometria.Models;
 using System.Diagnostics;
 using Biometria.Forms;
+using Biometria.Factories;
 
 namespace Biometria
 {

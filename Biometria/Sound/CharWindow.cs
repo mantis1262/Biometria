@@ -52,11 +52,6 @@ namespace Sound
                 time[i] = i / sampleRate;
                 freq[i] = i * sampleRate / result.Length;
                 Histogram.Series["Value"].Points.AddXY(freq[i], value[i]);
-
-                //if (value[i] > 0.008)
-                //{
-                //    double tmp = freq[i];
-                //}
             }
 
             double[][] FilterValue =  audioHelper.Filter(value.Length);
