@@ -10,6 +10,9 @@ namespace Sound
 {
     public static class Sound
     {
+
+        const double MAXDIS = 12.0;
+
         public static List<double> MFCCSound(string imagePath)
         {
             if (imagePath != null)
@@ -36,5 +39,13 @@ namespace Sound
             return null;
         }
 
+        public static bool SoundFit(List<double> dMFCC, List<double> fitMFCC)
+        {
+            AudioHelper audioHelper = new AudioHelper();
+            double dis = audioHelper.euclides(fitMFCC.ToArray(), dMFCC.ToArray());
+            if (dis < MAXDIS)
+                return true;
+            return false;
+        }
     }
 }
