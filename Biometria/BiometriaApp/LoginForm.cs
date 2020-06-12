@@ -51,6 +51,9 @@ namespace BiometriaApp
                     {
                         MessageBox.Show("You are sign in.");
                         MainForm form = new MainForm();
+                        form.Login = Login.Text;
+                        form.FingerprintRepository = this._fingerprintRepository;
+                        form.SoundRepository = this._soundRepository;
                         form.Show();
                     }
                     else
