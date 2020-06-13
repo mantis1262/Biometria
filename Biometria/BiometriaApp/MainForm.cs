@@ -42,6 +42,7 @@ namespace BiometriaApp
 
                 listView1.Items.Add(item);
             }
+            lbStanKonta.Text = stanKonta.ToString();
         }
 
         private void btnPrzelew_Click(object sender, EventArgs e)
@@ -73,7 +74,7 @@ namespace BiometriaApp
                     {
                         przelewy.Add(new Przelew(edOdbiorca.Text, edRach.Text, Convert.ToDecimal(edKwota.Text)));
                         MessageBox.Show("Autoryzacja pomyślna, przelew zrealizowany.");
-
+                        stanKonta -= Convert.ToDecimal(edKwota.Text);
                         btnAnuluj.PerformClick();
                         RefreshView();
                     }
